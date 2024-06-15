@@ -1,0 +1,781 @@
+//        btnAdd.setOnAction(actionEvent -> {
+//            if(fieldId.getText().isEmpty() || fieldDuration.getText().isEmpty()){
+//                LayoutAdmin.showError(actionTarget,"FIELD CANNOT BE EMPTY");
+//            }else{
+//                Book book = this.searchBookAll(fieldId.getText());
+//                if(book == null)
+//                    LayoutAdmin.showError(actionTarget,"Book with id " + fieldId.getText() + " is not found");
+//                else{
+//                    if(!(isBookAvailable(this,fieldId.getText()))) {
+//                        try {
+//                            if (Integer.parseInt(fieldDuration.getText()) < 15) {
+//                                tempBook[numberBorroewd][0] = book.getBookId();
+//                                tempBook[numberBorroewd][1] = fieldDuration.getText();
+//                                numberBorroewd++;
+//                                book.setStock(book.getStock() - 1);
+//                                LayoutAdmin.showError(actionTarget, "BOOK ADDED SUCCESFULLY");
+//                            } else
+//                                LayoutAdmin.showError(actionTarget, "DURATION MUST LOWER THAN 15");
+//                        } catch (Exception e) {
+//                            LayoutAdmin.showError(actionTarget, "INPUT VALID NUMBER DURATION");
+//                        }
+//                    }else
+//                        LayoutAdmin.showError(actionTarget,"BOOK HAS BEEN BORROWED");
+//                }
+//            }
+//        });
+
+
+
+
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        stage.setTitle("Test TableView");
+//        stage.setWidth(450);
+//        stage.setHeight(550);
+//
+//        final Label label = new Label("Daftar Buku");
+//        label.setFont(new Font("Arial", 30));
+//        tableBook1.setEditable(true);
+//
+//        tableBook1.getColumns().clear();
+//
+//        TableColumn<Book,String> idCol = new TableColumn<>("Id");
+//        TableColumn<Book,String> titleCol = new TableColumn<>("Title");
+//        TableColumn<Book,String> authorCol = new TableColumn<>("Author");
+//        TableColumn<Book,Integer> durationkCol = new TableColumn<>("Duration");
+//        TableColumn<Book, String> categoryCol = new TableColumn<>("Category");
+//
+//        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+//        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+//        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+//        durationkCol.setCellValueFactory(new PropertyValueFactory<>("duration"));
+//        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+//
+//        tableBook1.getColumns().addAll(idCol,titleCol,authorCol,categoryCol,durationkCol);
+//
+//        final VBox vbox = new VBox();
+//        vbox.setSpacing(8);
+//        vbox.setPadding(new Insets(20, 10, 10, 10));
+//        vbox.getChildren().addAll(label, tableBook1);
+//
+//        Button backBtn = new Button("Back");
+//        GridPane gridPane = new GridPane();
+//        gridPane.setPadding(new Insets(10));
+//        gridPane.setVgap(10);
+//        gridPane.setHgap(10);
+//        gridPane.setAlignment(Pos.CENTER);
+//
+//        // Add VBox with table and label to the GridPane
+//        gridPane.add(vbox, 0, 0);
+//
+//        // Add button to GridPane at bottom right
+//        GridPane.setHalignment(backBtn, HPos.RIGHT);
+//        gridPane.add(backBtn, 0, 1);
+//
+//        // Create and set the scene
+//        Scene scene = new Scene(gridPane, 450, 550);
+//
+//        ArrayList<PropertyBook> convertBook = PropertyBook.bookToProperty(this.borrowedBooks);
+//        final ObservableList<PropertyBook> data = FXCollections.observableArrayList(convertBook);
+//
+//        backBtn.setOnAction(e -> {
+//            stage.close();
+//            menu(stage);
+//        });
+//
+//        tableBook1.setItems(data);
+//        stage.setScene(scene);
+//        stage.show();
+
+
+
+
+//    public TableView<PropertyBook> createTableView(ArrayList<Book> arr) {
+//        TableView<PropertyBook> tableBook1 = new TableView<>();
+//        tableBook1.setEditable(false);
+//        tableBook1.getColumns().clear();
+//
+//        TableColumn<PropertyBook, String> idCol = new TableColumn<>("Id");
+//        TableColumn<PropertyBook, String> titleCol = new TableColumn<>("Title");
+//        TableColumn<PropertyBook, String> authorCol = new TableColumn<>("Author");
+//        TableColumn<PropertyBook, Integer> stockCol = new TableColumn<>("Stock");
+//        TableColumn<PropertyBook, String> categoryCol = new TableColumn<>("Category");
+//
+//        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+//        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+//        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+//        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+//        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+//
+//        tableBook1.getColumns().addAll(idCol, titleCol, authorCol, stockCol, categoryCol);
+//
+//        GridPane gridPane = new GridPane();
+//        gridPane.setPadding(new Insets(10));
+//        gridPane.setVgap(10);
+//        gridPane.setHgap(10);
+//        gridPane.setAlignment(Pos.CENTER);
+//
+//        final VBox vbox = new VBox();
+//        vbox.setSpacing(8);
+//        vbox.setPadding(new Insets(20, 10, 10, 10));
+//        vbox.getChildren().addAll(tableBook1);
+//        gridPane.add(vbox, 0, 0);
+//
+//        ArrayList<PropertyBook> convertBook = PropertyBook.bookToProperty(arr);
+//        final ObservableList<PropertyBook> data = FXCollections.observableArrayList(convertBook);
+//        tableBook1.setItems(data);
+//        return tableBook1;
+//    }
+
+
+
+
+//    public void displayBook1(Stage stage,ArrayList<Book> arr){
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        stage.setTitle("Test TableView");
+//        stage.setWidth(450);
+//        stage.setHeight(550);
+//
+//        final Label label = new Label("Daftar Buku");
+//        label.setFont(new Font("Arial", 30));
+//        tableBook.setEditable(true);
+//
+//        tableBook.getColumns().clear();
+//
+//        TableColumn<Book,String> idCol = new TableColumn<>("Id");
+//        TableColumn<Book,String> titleCol = new TableColumn<>("Title");
+//        TableColumn<Book,String> authorCol = new TableColumn<>("Author");
+//        TableColumn<Book,Integer> stockCol = new TableColumn<>("Stock");
+//        TableColumn<Book, String> categoryCol = new TableColumn<>("Category");
+//
+//        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+//        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+//        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+//        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+//        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+//
+//        tableBook.getColumns().addAll(idCol,titleCol,authorCol,stockCol,categoryCol);
+//
+//        final VBox vbox = new VBox();
+//        vbox.setSpacing(8);
+//        vbox.setPadding(new Insets(20, 10, 10, 10));
+//        vbox.getChildren().addAll(label, tableBook);
+//
+//        Button backBtn = new Button("Back");
+//        GridPane gridPane = new GridPane();
+//        gridPane.setPadding(new Insets(10));
+//        gridPane.setVgap(10);
+//        gridPane.setHgap(10);
+//        gridPane.setAlignment(Pos.CENTER);
+//
+//        // Add VBox with table and label to the GridPane
+//        gridPane.add(vbox, 0, 0);
+//
+//        // Add button to GridPane at bottom right
+//        GridPane.setHalignment(backBtn, HPos.RIGHT);
+//        gridPane.add(backBtn, 0, 1);
+//
+//        // Create and set the scene
+//        Scene scene = new Scene(gridPane, 450, 550);
+//
+//        ArrayList<PropertyBook> convertBook = PropertyBook.bookToProperty(Admin.getBookList());
+//        final ObservableList<PropertyBook> data = FXCollections.observableArrayList(convertBook);
+//
+//        backBtn.setOnAction(e -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//
+//        tableBook.setItems(data);
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+
+
+package org.example.com.main.UI;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.HPos;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+import org.example.com.main.Main;
+import org.example.com.main.books.Book;
+import org.example.com.main.books.HistoryBook;
+import org.example.com.main.books.StoryBook;
+import org.example.com.main.books.TextBook;
+import org.example.com.main.data.Admin;
+import org.example.com.main.data.Student;
+import org.example.com.main.exception.custom.illegalAdminAcces;
+
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class LayoutAdmin {
+//    private TableView tableBook = new TableView<>();
+//    private TableView tableStudent = new TableView<>();
+//
+//    public void layoutLogin(Stage stage) {
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        GridPane grid = new GridPane();
+//        grid.setAlignment(Pos.CENTER);
+//        grid.setHgap(10); // Jarak horizontal antar kolom
+//        grid.setVgap(10); // Jarak vertikal antar baris
+//        grid.setPadding(new Insets(25, 25, 25, 25));
+//        Text sceneTitle = new Text("Log In Admin");
+//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+//        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+//
+//        Label userName = new Label("Username:");
+//        grid.add(userName, 0, 1); // Kolom 0, Baris 1
+//
+//        TextField inputUserName = new TextField();
+//        inputUserName.setPromptText("Enter your username");
+//        grid.add(inputUserName, 1, 1); // Kolom 1, Baris 1
+//
+//        Label password = new Label("Password : ");
+//        grid.add(password, 0, 2);
+//
+//        PasswordField inputPassword = new PasswordField();
+//        inputPassword.setPromptText("Enter your password");
+//        grid.add(inputPassword, 1, 2);
+//
+//        Button btnSignIn = new Button("SIGN IN");
+//        Button btnBack = new Button("BACK");
+//        HBox hBBtn = new HBox(10);
+//        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
+//        hBBtn.getChildren().addAll(btnBack, btnSignIn);
+//        grid.add(hBBtn, 1, 3);
+//
+//        final Text actionTarget = new Text();
+//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+//        grid.add(actionTarget, 1, 6);
+//
+//        btnSignIn.setOnAction(actionEvent -> {
+//            if (inputUserName.getText().isEmpty() || inputPassword.getText().isEmpty()) {
+//                showError(actionTarget, "Username or password cannot be empty");
+//            } else {
+//                Admin admin = new Admin();
+//                try {
+//                    boolean isValid = admin.isAdmin1(inputUserName.getText(), inputPassword.getText());
+//                    admin.menu(stage);
+//                } catch (illegalAdminAcces e) {
+//                    showError(actionTarget, e.getMessage());
+//                }
+//            }
+//        });
+//
+//        btnBack.setOnAction(actionEvent -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//
+//        Scene scene = new Scene(grid, 420, 420);
+//        stage.setTitle("Form Login Admin");
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+//
+//    public void menuLayout(Stage stage,Admin admin){
+//        GridPane grid = new GridPane();
+//        grid.setAlignment(Pos.CENTER);
+//        grid.setHgap(10); // Jarak horizontal antar kolom
+//        grid.setVgap(10); // Jarak vertikal antar baris
+//        grid.setPadding(new Insets(25, 25, 25, 25));
+//        Text sceneTitle = new Text("Admin Menu");
+//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+//        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+//
+//        VBox hBBtn = new VBox(10);
+//        Button btnAddStudent = new Button("Add Student");
+//        Button btnAddBook = new Button("Add Book");
+//        Button btnDisplayStudent = new Button("Display Registered Student");
+//        Button btnDisplayBook = new Button("Display Book");
+//        Button btnEditBook = new Button("Edit Book");
+//        Button btnLogOut = new Button("Log Out");
+//        hBBtn.setAlignment(Pos.CENTER);
+//        hBBtn.getChildren().addAll(btnAddStudent,btnAddBook,btnDisplayStudent,btnDisplayBook,btnEditBook,btnLogOut);
+//        grid.add(hBBtn,1,3);
+//
+//        double buttonWidth = 170; // Tentukan lebar tombol
+//        double buttonHeight = 30; // Tentukan tinggi tombol
+//        btnAddStudent.setPrefSize(buttonWidth, buttonHeight);
+//        btnAddBook.setPrefSize(buttonWidth, buttonHeight);
+//        btnDisplayBook.setPrefSize(buttonWidth, buttonHeight);
+//        btnDisplayStudent.setPrefSize(buttonWidth, buttonHeight);
+//        btnEditBook.setPrefSize(buttonWidth,buttonHeight);
+//        btnLogOut.setPrefSize(buttonWidth, buttonHeight);
+//
+//        final Text actionTarget = new Text();
+//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+//        grid.add(actionTarget, 1, 4);
+//
+//        btnAddStudent.setOnAction(actionEvent -> {
+//            try {
+//                addStudentLayout(stage,admin);
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured " + e.getMessage());
+//            };
+//        });
+//
+//        btnAddBook.setOnAction(actionEvent -> {
+//            try {
+//                addBookLayout(stage,admin);
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured" + e.getMessage());
+//            }
+//        });
+//
+//        btnDisplayBook.setOnAction(actionEvent -> {
+//            try {
+//                displayBook(stage);
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured" + e.getMessage());
+//            }
+//        });
+//
+//        btnDisplayStudent.setOnAction(actionEvent -> {
+//            try {
+//                displayStudent(stage,admin);
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured " + e.getMessage());
+//            }
+//        });
+//
+//        btnLogOut.setOnAction(actionEvent -> {
+//            stage.close();
+//            UIManager uiManager= new UIManager();
+//            try {
+//                uiManager.start(stage);
+//            } catch (IOException e) {
+//                actionTarget.setText("An error occured " + e.getMessage());
+//            }
+//        });
+//
+//
+//        Scene scene = new Scene(grid,420,420);
+//        stage.setTitle("Admin Menu");
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+//
+//    public void addStudentLayout(Stage stage,Admin admin){
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        GridPane grid = new GridPane();
+//        grid.setAlignment(Pos.CENTER);
+//        grid.setHgap(10); // Jarak horizontal antar kolom
+//        grid.setVgap(10); // Jarak vertikal antar baris
+//        grid.setPadding(new Insets(25, 25, 25, 25));
+//        Text sceneTitle = new Text("Add Student");
+//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+//        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+//
+//        Label name = new Label("Name :");
+//        grid.add(name, 0, 1); // Kolom 0, Baris 1
+//        TextField inputName = new TextField();
+//        inputName.setPromptText("Enter student name");
+//        grid.add(inputName, 1, 1); // Kolom 1, Baris 1
+//
+//        Label NIM = new Label("NIM : ");
+//        grid.add(NIM, 0, 2);
+//        TextField inputNIM = new TextField();
+//        inputNIM.setPromptText("Enter student NIM");
+//        grid.add(inputNIM, 1, 2);
+//
+//        Label faculty = new Label("Faculty");
+//        grid.add(faculty,0,3);
+//        TextField inputFaculty = new TextField();
+//        inputFaculty.setPromptText("Enter student faculty");
+//        grid.add(inputFaculty,1,3);
+//
+//        Label program = new Label("Program");
+//        grid.add(program,0,4);
+//        TextField inputProgram = new TextField();
+//        inputProgram.setPromptText("Enter student program");
+//        grid.add(inputProgram,1,4);
+//
+//        Button btnSubmit = new Button("SUBMIT");
+//        Button btnBack = new Button("BACK");
+//        HBox hBBtn = new HBox(10);
+//        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
+//        hBBtn.getChildren().addAll(btnBack, btnSubmit);
+//        grid.add(hBBtn, 1, 5);
+//
+//        final Text actionTarget = new Text();
+//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+//        grid.add(actionTarget, 1, 6);
+//
+//        btnSubmit.setOnAction(actionEvent -> {
+//            Student student = Main.checkNIM(inputName.getText(),inputNIM.getText(),inputFaculty.getText(),inputProgram.getText());
+//            if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || inputFaculty.getText().isEmpty()||inputProgram.getText().isEmpty())
+//                showError(actionTarget,"PLEASE FILL ALL BLANKS");
+//            else if(student == null)
+//                showError(actionTarget,"NIM SAME");
+//            else {
+//                admin.addStudent(inputName.getText(), inputNIM.getText(), inputFaculty.getText(), inputProgram.getText());
+//                actionTarget.setText("STUDENT SUCCESFULLY ADDED");
+//            }
+//        });
+//
+//        btnBack.setOnAction(actionEvent -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//
+//        Scene scene = new Scene(grid,420,420);
+//        stage.setTitle("Add Student");
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+//
+//    public void addBookLayout(Stage stage, Admin admin){
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        GridPane grid = new GridPane();
+//        grid.setAlignment(Pos.CENTER);
+//        grid.setHgap(10); // Jarak horizontal antar kolom
+//        grid.setVgap(10); // Jarak vertikal antar baris
+//        grid.setPadding(new Insets(25, 25, 25, 25));
+//        Text sceneTitle = new Text("Add Book");
+//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+//        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+//
+//        Label categoryLabel = new Label("Category:");
+//        grid.add(categoryLabel, 0, 1);
+//
+//        ComboBox<String> categoryComboBox = new ComboBox<>();
+//        categoryComboBox.getItems().addAll("History", "Text", "Story");
+//        categoryComboBox.setPromptText("Select category");
+//        grid.add(categoryComboBox, 1, 1);
+//
+//        Label title = new Label("Title :");
+//        grid.add(title, 0, 2); // Kolom 0, Baris 1
+//        TextField fieldTitle = new TextField();
+//        fieldTitle.setPromptText("Enter book title");
+//        grid.add(fieldTitle, 1, 2); // Kolom 1, Baris 1
+//
+//        Label author = new Label("Author : ");
+//        grid.add(author, 0, 3);
+//        TextField fieldAuthor = new TextField();
+//        fieldAuthor.setPromptText("Enter book author");
+//        grid.add(fieldAuthor, 1, 3);
+//
+//        Label stock = new Label("Stock");
+//        grid.add(stock,0,4);
+//        TextField fieldStock = new TextField();
+//        fieldStock.setPromptText("Enter book stock");
+//        grid.add(fieldStock,1,4);
+//
+//        Button btnSubmit = new Button("SUBMIT");
+//        Button btnBack = new Button("BACK");
+//        HBox hBBtn = new HBox(10);
+//        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
+//        hBBtn.getChildren().addAll(btnBack, btnSubmit);
+//        grid.add(hBBtn, 1, 5);
+//
+//        final Text actionTarget = new Text();
+//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+//        grid.add(actionTarget, 1, 6);
+//
+//        btnSubmit.setOnAction(actionEvent -> {
+//            String categoryValue = categoryComboBox.getValue();
+//            if (categoryValue == null || fieldAuthor.getText().isEmpty() || fieldTitle.getText().isEmpty()|| fieldStock.getText().isEmpty())
+//                showError(actionTarget,"PLEASE FILL ALL BLANKS");
+//            else {
+//                try {
+//                    Book book;
+//                    if(categoryValue.equals("Text"))
+//                        book = new TextBook(admin.generateId(),fieldTitle.getText(),fieldAuthor.getText(),Integer.parseInt(fieldStock.getText()));
+//                    else if(categoryValue.equals("History"))
+//                        book = new HistoryBook(admin.generateId(),fieldTitle.getText(),fieldAuthor.getText(),Integer.parseInt(fieldStock.getText()));
+//                    else
+//                        book = new StoryBook(admin.generateId(),fieldTitle.getText(),fieldAuthor.getText(),Integer.parseInt(fieldStock.getText()));
+//                    admin.addBook(book);
+//                    actionTarget.setText("BOOK SUCCESFULLY ADDED");
+//                }catch (Exception e){
+//                    showError(actionTarget,e.getMessage());
+//                }
+//            }
+//        });
+//
+//        btnBack.setOnAction(actionEvent -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//
+//        Scene scene = new Scene(grid,420,420);
+//        stage.setTitle("Add Book");
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+//
+//    public void displayStudent(Stage stage,Admin admin){
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        stage.setTitle("Test TableView");
+//        stage.setWidth(450);
+//        stage.setHeight(550);
+//
+//        final Label label = new Label("Daftar Buku");
+//        label.setFont(new Font("Arial", 30));
+//        tableStudent.setEditable(true);
+//
+//        tableStudent.getColumns().clear();
+//        TableColumn<Student,String> nameCol = new TableColumn<>("Name");
+//        TableColumn<Student,String> nimCol = new TableColumn<>("NIM");
+//        TableColumn<Student,String> facultyCol = new TableColumn<>("Faculty");
+//        TableColumn<Student,String> prodiCol = new TableColumn<>("Program Studi");
+//
+//        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+//        nimCol.setCellValueFactory(new PropertyValueFactory<>("nim"));
+//        facultyCol.setCellValueFactory(new PropertyValueFactory<>("faculty") );
+//        prodiCol.setCellValueFactory(new PropertyValueFactory<>("programStudi"));
+//        tableStudent.getColumns().addAll(nameCol,nimCol,facultyCol,prodiCol);
+//
+//        Button backBtn = new Button("Back");
+//        GridPane gridPane = new GridPane();
+//        gridPane.setPadding(new Insets(10));
+//        gridPane.setVgap(10);
+//        gridPane.setHgap(10);
+//        gridPane.setAlignment(Pos.CENTER);
+//
+//        final VBox vbox = new VBox();
+//        vbox.setSpacing(8);
+//        vbox.setPadding(new Insets(20, 10, 10, 10));
+//        vbox.getChildren().addAll(label, tableStudent);
+//
+//        // Add VBox with table and label to the GridPane
+//        gridPane.add(vbox, 0, 0);
+//
+//        // Add button to GridPane at bottom right
+//        GridPane.setHalignment(backBtn, HPos.RIGHT);
+//        gridPane.add(backBtn, 0, 1);
+//
+//        // Create and set the scene
+//        Scene scene = new Scene(gridPane, 450, 550);
+//
+//        ArrayList<Student> dataStudent = Admin.getStudentData();
+//        ArrayList<PropertyStudent> convertStudent = PropertyStudent.studentToProperty(dataStudent);
+//        final ObservableList<PropertyStudent> data = FXCollections.observableArrayList(convertStudent);
+//
+//        backBtn.setOnAction(e -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//        tableStudent.setItems(data);
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+//
+//
+//    public void displayBook(Stage stage) {
+//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+//        stage.setTitle("Test TableView");
+//        stage.setWidth(450);
+//        stage.setHeight(550);
+//
+//        final Label label = new Label("Daftar Buku");
+//        label.setFont(new Font("Arial", 30));
+//        tableBook.setEditable(true);
+//
+//        tableBook.getColumns().clear();
+//
+//        TableColumn<Book,String> idCol = new TableColumn<>("Id");
+//        TableColumn<Book,String> titleCol = new TableColumn<>("Title");
+//        TableColumn<Book,String> authorCol = new TableColumn<>("Author");
+//        TableColumn<Book,Integer> stockCol = new TableColumn<>("Stock");
+//        TableColumn<Book, String> categoryCol = new TableColumn<>("Category");
+//
+//        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+//        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+//        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+//        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+//        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+//
+//        tableBook.getColumns().addAll(idCol,titleCol,authorCol,stockCol,categoryCol);
+//
+//        final VBox vbox = new VBox();
+//        vbox.setSpacing(8);
+//        vbox.setPadding(new Insets(20, 10, 10, 10));
+//        vbox.getChildren().addAll(label, tableBook);
+//
+//        Button backBtn = new Button("Back");
+//        GridPane gridPane = new GridPane();
+//        gridPane.setPadding(new Insets(10));
+//        gridPane.setVgap(10);
+//        gridPane.setHgap(10);
+//        gridPane.setAlignment(Pos.CENTER);
+//
+//        // Add VBox with table and label to the GridPane
+//        gridPane.add(vbox, 0, 0);
+//
+//        // Add button to GridPane at bottom right
+//        GridPane.setHalignment(backBtn, HPos.RIGHT);
+//        gridPane.add(backBtn, 0, 1);
+//
+//        // Create and set the scene
+//        Scene scene = new Scene(gridPane, 450, 550);
+//
+//        ArrayList<PropertyBook> convertBook = PropertyBook.bookToProperty(Admin.getBookList());
+//        final ObservableList<PropertyBook> data = FXCollections.observableArrayList(convertBook);
+//
+//        backBtn.setOnAction(e -> {
+//            stage.setScene(UIManager.getPreviousLayout());
+//        });
+//
+//        tableBook.setItems(data);
+//        stage.setScene(scene);
+//        stage.show();
+//    }
+
+
+
+}
+
+
+
+
+//    public static void updateBooksStudent(String id,String changes,int choose){
+//        for (Student student : Admin.getStudentData()){
+//            for (Book book : student.getBorrowedBooks()){
+//                if(book.getBookId().equals(id)){
+//                    switch (choose){
+//                        case 1:
+//                            book.setTitle(changes);
+//                            break;
+//                        case 2:
+//                            book.setAuthor(changes);
+//                            break;
+//                        case 3:
+//                            book.setCategory(changes);
+//                            break;
+//                    }
+//                }
+//            }
+//
+//        }
+//    }
+
+//
+//    @Override
+//    public void updateBooks() {
+//        Scanner inputObj = new Scanner(System.in);
+//        String id,changes = null,choose,chooseCategory;
+//       // this.displayBook(Admin.getBookList());
+//        System.out.print("===== EDIT BOOKS ======\nMasukkan id buku yang ingin diubah : ");
+//        id = inputObj.nextLine();
+//        Book book = Admin.searchBookAll(id);
+//        if(book!=null){
+//            System.out.print("1. Title\n2. Author\n3. Category\n4. Stock\nPlease choose that you want change : ");
+//            choose = inputObj.nextLine();
+//            switch (Integer.parseInt(choose)){
+//                case 1:
+//                    System.out.print("ENTER NEW TITLE : ");
+//                    changes = inputObj.nextLine();
+//                    book.setTitle(changes);
+//                    break;
+//                case 2:
+//                    System.out.print("ENTER NEW AUTHOR : ");
+//                    changes = inputObj.nextLine();
+//                    book.setAuthor(changes);
+//                    break;
+//                case 3:
+//                    System.out.print("1. Story\n2. History\n3. Text Book\nCHOOSE CATAEGORY :");
+//                    chooseCategory = inputObj.nextLine();
+//                    switch (Integer.parseInt(chooseCategory)){
+//                        case 1:
+//                            changes = "Story";
+//                            break;
+//                        case 2:
+//                            changes = "History";
+//                            break;
+//                        case 3:
+//                            changes = "Text Book";
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                    book.setCategory(changes);
+//                    break;
+//                case 4:
+//                    System.out.print("ENTER NEW STOCK : ");
+//                    changes = inputObj.nextLine();
+//                    book.setStock(Integer.parseInt(changes));
+//                    break;
+//                default:
+//                    System.out.print("INVALID CHOOSE");
+//                    break;
+//            }
+//            Admin.updateBooksStudent(id,changes,Integer.parseInt(choose));
+//            System.out.println("EDIT SUCCESFULL");
+//        }
+//        else
+//            System.out.println("BUKU DENGAN ID "+  id + " TIDAK DIPINJAM");
+//    }
+
+
+
+
+    public void start(Stage stage) throws IOException {
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(25,25,25,25));
+
+        VBox hboxBtn = new VBox(10);
+        Button btnLogAdmin = new Button("Login As Admin");
+        Button btnLogStudent = new Button("Login As Student");
+        Button btnExit = new Button("EXIT");
+
+        double buttonWidth = 150; // Tentukan lebar tombol
+        double buttonHeight = 30; // Tentukan tinggi tombol
+        btnLogAdmin.setPrefSize(buttonWidth, buttonHeight);
+        btnLogStudent.setPrefSize(buttonWidth, buttonHeight);
+        btnExit.setPrefSize(buttonWidth, buttonHeight);
+
+        hboxBtn.setAlignment(Pos.CENTER);
+        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
+        grid.add(hboxBtn,1,3);
+
+        final Text actionTarget = new Text();
+        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+        grid.add(actionTarget, 1, 6);
+
+        btnExit.setOnAction(actionEvent -> {
+            try {
+                stage.close();
+            }catch (Exception e){
+                actionTarget.setText("An error occured " + e.getMessage());
+            };
+        });
+
+        btnLogAdmin.setOnAction(actionEvent -> {
+            try {
+                Admin admin = new Admin();
+                admin.logIn(stage);
+            } catch (Exception e) {
+                actionTarget.setText("An error occurred: " + e.getMessage());
+            }
+        });
+        Scene scene = new Scene(grid,420,420);
+        stage.setTitle("MENU");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void layoutBase(Stage stage) {
+        try {
+            UIManager uiManager = new UIManager();
+            uiManager.start(stage);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
