@@ -37,7 +37,6 @@ public class Admin extends User implements IMenu {
     private static final ArrayList<Student> studentData = new ArrayList<>();
     private static final ArrayList<String> studentList = new ArrayList<>();
     private static ArrayList<String> visitorList = new ArrayList<>();
-    private static int numberDate = 1;
 
     public static void updateDate(){
         LocalDate currentDate = LocalDate.parse(getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -127,6 +126,8 @@ public class Admin extends User implements IMenu {
         stage.show();
     }
 
+
+
     @Override
     public void menu(Stage stage) {
         GridPane grid = new GridPane();
@@ -162,6 +163,9 @@ public class Admin extends User implements IMenu {
         btnEditBook.setPrefSize(buttonWidth,buttonHeight);
         btnLogOut.setPrefSize(buttonWidth, buttonHeight);
         btnDisplayVisitor.setPrefSize(buttonWidth,buttonHeight);
+        btnDisplayEachFaculty.setPrefSize(buttonWidth,buttonHeight);
+        btnPredictVisitor.setPrefSize(buttonWidth,buttonHeight);
+        btnClose.setPrefSize(buttonWidth,buttonHeight);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -317,7 +321,29 @@ public class Admin extends User implements IMenu {
         return new double[]{intercept, slope};
     }
 
+    public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program) {
+        admin.addStudent(name,NIM,faculty,program);
+    }
+
+    public static Student checkNIM(String name, String NIM, String faculty, String program) {
+        for (Student x : Admin.getStudentData()) {
+            if (x.getNIM().equals(NIM)) {
+                return null;
+            }
+        }
+        return new Student(name, NIM, faculty, program);
+    }
+
     public void displayEachFaculty(Stage stage){
+        UIManager.setPreviousLayout(stage.getScene());
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(25,25,25,25));
+
+        VBox hbboxBtn = new VBox(10);
+
         // Counting students per faculty using a map
         Map<String, Integer> facultyCountMap = new HashMap<>();
 
@@ -333,7 +359,6 @@ public class Admin extends User implements IMenu {
                 }
             }
         }
-
         // Prepare data for the pie chart including percentages
         ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
 
@@ -347,10 +372,18 @@ public class Admin extends User implements IMenu {
         // Set up the pie chart
         PieChart pieChart = new PieChart(pieChartData);
         pieChart.setTitle("Percentage of Students by Faculty");
+        Button btnBack = new Button("BACK");
+        grid.add(pieChart,0,0);
 
-        // Display the chart in a VBox
-        VBox vbox = new VBox(pieChart);
-        Scene scene = new Scene(vbox, 800, 600);
+        hbboxBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hbboxBtn.getChildren().addAll(btnBack);
+        grid.add(hbboxBtn,0,1);
+
+
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        btnBack.setOnAction(actionEvent -> {
+            stage.setScene(UIManager.getPreviousLayout());
+        });
 
         stage.setScene(scene);
         stage.show();
@@ -360,6 +393,13 @@ public class Admin extends User implements IMenu {
     public void displayVisitor(Stage stage) {
         UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
         stage.setTitle("Visitor Bar Chart");
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(25,25,25,25));
+
+        VBox hbboxBtn = new VBox(10);
 
         // Counting visitors per date using a map
         Map<String, Integer> visitorCountMap = new TreeMap<>(); // TreeMap will sort keys (dates) naturally
@@ -393,28 +433,26 @@ public class Admin extends User implements IMenu {
         series.setData(barChartData);
 
         barChart.getData().add(series);
+        grid.add(barChart,0,0);
 
         // Create a back button
         Button btnBack = new Button("BACK");
+        hbboxBtn.getChildren().addAll(btnBack);
+        hbboxBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        grid.add(hbboxBtn,0,1);
         btnBack.setOnAction(event -> {
-            // Handle the back button action
-            // For example, you can set the scene to the previous one or a main menu
-            stage.setScene(UIManager.getPreviousLayout()); // Ensure you have a reference to the previous scene
+            stage.setScene(UIManager.getPreviousLayout());
+
         });
 
-        // Display the chart and back button in a VBox
-        VBox vbox = new VBox(10); // 10 is the spacing between elements
-        vbox.setPadding(new Insets(10));
-        vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(barChart, btnBack);
-
-        Scene scene = new Scene(vbox, 800, 600);
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
 
         stage.setScene(scene);
         stage.show();
     }
 
     public void addStudent(Stage stage) {
+        UIManager.setPreviousLayout(stage.getScene());
         // Sample faculty to program mapping
         Map<String, String[]> facultyToPrograms = new HashMap<>();
         facultyToPrograms.put("FEB", new String[]{"MANAJEMEN", "AKUNTANSI", "EKONOMI PEMBANGUNAN"});
@@ -483,7 +521,7 @@ public class Admin extends User implements IMenu {
         });
 
         btnSubmit.setOnAction(event -> {
-            Student student = Main.checkNIM(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
+            Student student = checkNIM(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
             if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || facultyComboBox.getValue().isEmpty()||programComboBox.getValue().isEmpty())
                 UIManager.showError(actionTarget,"PLEASE FILL ALL BLANKS");
             else if(inputNIM.getText().length()< 15)
@@ -491,7 +529,7 @@ public class Admin extends User implements IMenu {
             else if(student == null)
                 UIManager.showError(actionTarget,"NIM SAME");
             else {
-                Main.addTempStudent(this,inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
+                addTempStudent(this,inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
                 UIManager.showSuccess(actionTarget,"STUDENT ADDED SUCCESSFULY");
             }
         });

@@ -19,8 +19,7 @@ import org.example.com.main.UI.UIManager;
 import org.example.com.main.books.*;
 import org.example.com.main.util.IMenu;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Optional;
+import java.util.*;
 
 public class Student extends User implements IMenu {
     private String name,faculty,programStudi,NIM,consultingClass;
@@ -28,6 +27,8 @@ public class Student extends User implements IMenu {
     private static ArrayList<Book> studentBook = new ArrayList<>();
     private static String[][] tempBook = new String[10][10];
     private static int numberBorroewd = 0;
+    private static ArrayList<String> favoriteBooks = new ArrayList<>();
+
     public Student(String name, String NIM, String faculty, String programStudi){
         this.name = name;
         this.NIM = NIM;
@@ -38,7 +39,6 @@ public class Student extends User implements IMenu {
     public void addVisitor(){
         Admin.setTime();
         String format = Admin.getDate() +" " + Admin.getTime() + " "+ this.getNIM();
-        System.out.println(format);
         Admin.addVisitor(format);
     }
     public static void logIn(Stage stage){
@@ -92,6 +92,11 @@ public class Student extends User implements IMenu {
         stage.setScene(scene);
         stage.show();
     }
+
+    public static ArrayList<String> getFavoriteBooks() {
+        return favoriteBooks;
+    }
+
     @Override
     public void menu(Stage stage){
         GridPane grid = new GridPane();
@@ -115,9 +120,10 @@ public class Student extends User implements IMenu {
         Button btnPinjamB = new Button("Pinjam Buku");
         Button btnKembalikanB = new Button("Kembalikan Buku");
         Button btnOut = new Button("Pinjam Buku atau Logout");
+        Button btnDisplayFavorite = new Button("Tampilkan Rekomendasi Buku");
         Button btnUpBook = new Button("Update Buku");
         hBBtn.setAlignment(Pos.CENTER);
-        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnUpBook);
+        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook);
         grid.add(hBBtn,1,3);
 
         double buttonWidth = 170; // Tentukan lebar tombol
@@ -162,8 +168,100 @@ public class Student extends User implements IMenu {
            }
         });
 
+        btnDisplayFavorite.setOnAction(actionEvent -> {
+            displayFavoriteBook(stage);
+        });
+
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
         stage.setTitle("STUDENT MENU");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public ArrayList<Book> getFavoriteBookArr(){
+        // Menggunakan HashMap untuk menyimpan jumlah setiap id buku
+        HashMap<String, Integer> bukuMap = new HashMap<>();
+
+        for (String idBuku : favoriteBooks) {
+            if (bukuMap.containsKey(idBuku)) {
+                bukuMap.put(idBuku, bukuMap.get(idBuku) + 1);
+            } else {
+                bukuMap.put(idBuku, 1);
+            }
+        }
+
+        // Mengonversi HashMap ke ArrayList
+        ArrayList<Map.Entry<String, Integer>> bukuList = new ArrayList<>(bukuMap.entrySet());
+
+        // Melakukan sorting ArrayList berdasarkan jumlah buku dari yang banyak ke sedikit
+        Collections.sort(bukuList, new Comparator<>() {
+            @Override
+            public int compare(Map.Entry<String, Integer> e1, Map.Entry<String, Integer> e2) {
+                return e2.getValue().compareTo(e1.getValue());
+            }
+        });
+
+        // Mengonversi hasil sorting ke array 2D
+        String[][] bukuArray = new String[bukuList.size()][2];
+        int index = 0;
+        for (Map.Entry<String, Integer> entry : bukuList) {
+            bukuArray[index][0] = entry.getKey();
+            bukuArray[index][1] = String.valueOf(entry.getValue());
+            index++;
+        }
+
+        int indeks = 0;
+        ArrayList<Book> sortedBooks = new ArrayList<>();
+        for (Book book : getBookList()){
+            for (String seacrhId : favoriteBooks){
+                if (book.getBookId().equals(seacrhId)){
+                    Book newBook = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),book.getStock());
+                    newBook.setCategory(book.getCategory());
+                    newBook.setStock(Integer.parseInt(bukuArray[indeks][1]));
+                    sortedBooks.add(newBook);
+                    indeks++;
+                    break;
+                }
+            }
+        }
+        return sortedBooks;
+    }
+
+    public void displayFavoriteBook(Stage stage) {
+        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10); // Jarak horizontal antar kolom
+        grid.setVgap(10); // Jarak vertikal antar baris
+        grid.setPadding(new Insets(25, 25, 25, 25));
+        Text sceneTitle = new Text("FAVORITE BOOKS");
+        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+
+        TableView<PropertyBook> table = super.createTableViewFavorite(getFavoriteBookArr());
+        VBox vbox = new VBox();
+        vbox.setSpacing(5);
+        vbox.setPadding(new Insets(10, 0, 0, 10));
+        vbox.getChildren().addAll(table);
+        grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
+
+        HBox hBBtn = new HBox(10);
+        Button btnBack = new Button("BACK");
+        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hBBtn.getChildren().addAll(btnBack);
+        grid.add(hBBtn,1,2);
+
+        final Text actionTarget = new Text();
+        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+        grid.add(actionTarget, 1, 3);
+
+        btnBack.setOnAction(e -> {
+            stage.close();
+            menu(stage);
+        });
+
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        stage.setTitle("DISPLAY AVAILABE BOOKS");
         stage.setScene(scene);
         stage.show();
     }
@@ -330,6 +428,10 @@ public class Student extends User implements IMenu {
         stage.show();
     }
 
+    public void addToFavoretBook(String bookId){
+
+    }
+
     public void keepBooks(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
         GridPane grid = new GridPane();
@@ -347,12 +449,14 @@ public class Student extends User implements IMenu {
                 if(book.getBookId().equals(tempBook[i][0])) {
                     Book newBook = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),book.getStock());
                     newBook.setCategory(book.getCategory());
+                    favoriteBooks.add(newBook.getBookId());
                     newBook.setDuration(Integer.parseInt(tempBook[i][1]));
                     selectionArr.add(newBook);
                     break;
                 }
             }
         }
+
         TableView<PropertyBook> table = createTableView(selectionArr);
         VBox vbox = new VBox();
         vbox.setSpacing(5);
@@ -372,7 +476,7 @@ public class Student extends User implements IMenu {
         grid.add(actionTarget, 1, 3);
 
         btnSave.setOnAction(actionEvent -> {
-            Main.addTempBook(this,numberBorroewd,tempBook);
+            addTempBook(this,numberBorroewd,tempBook);
             UIManager.showSuccess(actionTarget,"BOO HAS BEEN SAVE");
             logOut(stage);
         });
@@ -386,6 +490,11 @@ public class Student extends User implements IMenu {
         stage.setTitle("VALIDATION MENU");
         stage.setScene(scene);
         stage.show();
+    }
+
+    public static void addTempBook(Student student,int numberBorrowed, String[][] arr) {
+        for (int i = 0; i < numberBorrowed; i++)
+            student.choiceBook(arr[i][0],Integer.parseInt(arr[i][1]));
     }
 
     public void returnBooks(Stage stage){

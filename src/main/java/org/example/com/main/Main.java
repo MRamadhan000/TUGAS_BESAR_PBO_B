@@ -22,20 +22,23 @@ public class Main extends Application{
         launch(args);
     }
     public static void addUser(){
-        Student student1 = new Student("AGUS","123","FT","INFORMATIKA");
-        Student student2 = new Student("AHMAD","234","FKIP","PENDIDIKAN MATEMATIKA");
-        student1.addVisitor();
-        student2.addVisitor();
-        Admin.getStudentData().add(student1);
-        Admin.getStudentData().add(student2);
-        Book book1 = new Book("A01","Shingeki No Kyoujin", "HAJIME ISAYAMAN",10);
-        Book book2 = new Book("B01","Naruto","MASASHI KISHIMOTO",12);
-        book1.setCategory("History");
-        book2.setCategory("Story");
-        User.getBookList().add(book1);
-        User.getBookList().add(book2);
-        book1.setDuration(9);
-        student1.getBorrowedBooks().add(book1);
+        for (int i = 0; i < 10; i++){
+            String bookId = "A0"+i;
+            Book book = new Book(bookId,"A","RANDOMA",i+2);
+            book.setCategory("Story");
+            User.getBookList().add(book);
+
+            Student student = new Student("AGUS",String.valueOf(i+100),"FT","INFORMATIKA");
+            Admin.getStudentData().add(student);
+            if(i%2 == 0 && i >4) {
+                Admin.updateDate();
+                Student.getFavoriteBooks().add(bookId);
+            }
+            if (i %2 == 0 )
+                Student.getFavoriteBooks().add(bookId);
+            Student.getFavoriteBooks().add(bookId);
+            student.addVisitor();
+        }
     }
 
     @Override
@@ -54,7 +57,6 @@ public class Main extends Application{
         Button btnLogAdmin = new Button("Login As Admin");
         Button btnLogStudent = new Button("Login As Student");
         Button btnExit = new Button("EXIT");
-        Button btnTemp  = new Button(("Temp"));
 
         double buttonWidth = 150; // Tentukan lebar tombol
         double buttonHeight = 30; // Tentukan tinggi tombol
@@ -63,13 +65,12 @@ public class Main extends Application{
         btnExit.setPrefSize(buttonWidth, buttonHeight);
 
         hboxBtn.setAlignment(Pos.CENTER);
-        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit,btnTemp);
+        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
         grid.add(hboxBtn,1,3);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
         grid.add(actionTarget, 1, 6);
-
 
         btnLogAdmin.setOnAction(actionEvent -> {
             try {
@@ -99,21 +100,7 @@ public class Main extends Application{
         stage.setScene(scene);
         stage.show();
     }
-    public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program) {
-        admin.addStudent(name,NIM,faculty,program);
-    }
 
-    public static Student checkNIM(String name, String NIM, String faculty, String program) {
-        for (Student x : Admin.getStudentData()) {
-            if (x.getNIM().equals(NIM)) {
-                return null;
-            }
-        }
-        return new Student(name, NIM, faculty, program);
-    }
-    public static void addTempBook(Student student,int numberBorrowed, String[][] arr) {
-        for (int i = 0; i < numberBorrowed; i++)
-            student.choiceBook(arr[i][0],Integer.parseInt(arr[i][1]));
-    }
+
 
 }

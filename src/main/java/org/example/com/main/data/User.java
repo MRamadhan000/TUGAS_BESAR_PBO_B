@@ -69,6 +69,43 @@ public abstract class User {
         return table;
     }
 
+    public TableView<PropertyBook> createTableViewFavorite(ArrayList<Book> arr){
+        TableView<PropertyBook> table = new TableView<>();
+        table.setEditable(false);
+        table.getColumns().clear();
+
+        TableColumn<PropertyBook,String> idCol = new TableColumn<>("Id");
+        TableColumn<PropertyBook,String> titleCol = new TableColumn<>("Title");
+        TableColumn<PropertyBook,String> authorCol = new TableColumn<>("Author");
+        TableColumn<PropertyBook,Integer> stockCol = new TableColumn<>("Number Borrowed");
+        TableColumn<PropertyBook, String> categoryCol = new TableColumn<>("Category");
+
+        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
+        titleCol.setCellValueFactory(new PropertyValueFactory<>("title"));
+        authorCol.setCellValueFactory(new PropertyValueFactory<>("author"));
+        stockCol.setCellValueFactory(new PropertyValueFactory<>("stock"));
+        categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
+
+        table.getColumns().addAll(idCol,titleCol,authorCol,stockCol,categoryCol);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setPadding(new Insets(10));
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
+        gridPane.setAlignment(Pos.CENTER);
+
+        final VBox vbox = new VBox();
+        vbox.setSpacing(8);
+        vbox.setPadding(new Insets(20, 10, 10, 10));
+        vbox.getChildren().addAll(table);
+        gridPane.add(vbox, 0, 0);
+
+        ArrayList<PropertyBook> convertBook = PropertyBook.bookToProperty(arr);
+        final ObservableList<PropertyBook> data = FXCollections.observableArrayList(convertBook);
+        table.setItems(data);
+        return table;
+    }
+
     public static ArrayList<Book> getBookList(){
         return bookList;
     }
