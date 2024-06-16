@@ -36,11 +36,7 @@ public class Student extends User implements IMenu {
         this.programStudi = programStudi;
         this.consultingClass = "";
     }
-    public void addVisitor(){
-        Admin.setTime();
-        String format = Admin.getDate() +" " + Admin.getTime() + " "+ this.getNIM();
-        Admin.addVisitor(format);
-    }
+
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
         GridPane grid = new GridPane();
@@ -793,6 +789,12 @@ public class Student extends User implements IMenu {
             if(student.getNIM().equals(inputNIM))
                 return student;
         return null;
+    }
+
+    public void addVisitor(){
+        Admin.setTime();
+        String format = Admin.getDate() +" " + Admin.getTime() + " "+ this.getNIM();
+        Admin.addVisitor(format);
     }
 
     public String getConsultingClass() {

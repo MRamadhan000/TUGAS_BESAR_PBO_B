@@ -23,6 +23,7 @@ import org.example.com.main.books.*;
 import org.example.com.main.util.IMenu;
 import org.example.com.main.exception.custom.illegalAdminAcces;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,37 +35,12 @@ public class Admin extends User implements IMenu {
     private final String adminPassword = "admin";
     private static String date;
     private static String time;
+    private static String editTime;
     private static final ArrayList<Student> studentData = new ArrayList<>();
     private static final ArrayList<String> studentList = new ArrayList<>();
     private static ArrayList<String> visitorList = new ArrayList<>();
 
-    public static void updateDate(){
-        LocalDate currentDate = LocalDate.parse(getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        LocalDate nextDay = currentDate.plusDays(1);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        setDate(nextDay.format(formatter));
-    }
 
-    public static String getTime() {
-        return time;
-    }
-
-    public static void setDate(String newDate){
-        date = newDate;
-    }
-
-
-    public static void firstDate() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        setDate(now.format(formatter));
-    }
-
-    public static void setTime() {
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
-        time = now.format(formatter);
-    }
 
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
@@ -147,7 +123,7 @@ public class Admin extends User implements IMenu {
         Button btnEditBook = new Button("Edit Book");
         Button btnDisplayVisitor = new Button("Display Visitor");
         Button btnDisplayEachFaculty = new Button("Display Visitor faculty");
-        Button btnPredictVisitor = new Button("PREDICT VISITOR");
+        Button btnPredictVisitor = new Button("Predict Visitor");
         Button btnClose = new Button("Close Library");
         Button btnLogOut = new Button("Log Out");
         hBBtn.setAlignment(Pos.CENTER);
@@ -226,7 +202,7 @@ public class Admin extends User implements IMenu {
         });
 
         btnPredictVisitor.setOnAction(actionEvent -> {
-            predictVisitor(stage);
+            displayPredictVisitor(stage);
         });
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
@@ -235,91 +211,151 @@ public class Admin extends User implements IMenu {
         stage.show();
     }
 
-    private void predictVisitor(Stage stage) {
-        ArrayList<String> visitorList = new ArrayList<>();
-        visitorList.add("2024-06-15 18:16:37 100"); // 100 is the visitor ID
-        visitorList.add("2024-06-16 18:20:37 101");
-        visitorList.add("2024-06-17 18:16:37 102"); // 102 is the visitor ID
-        visitorList.add("2024-06-18 18:20:37 103");
-        visitorList.add("2024-06-19 18:25:37 104");
+    private void displayPredictVisitor(Stage stage) {
+        UIManager.setPreviousLayout(stage.getScene());
+        // Step 1: Get predicted visitor data using getPredictVisitor method
+        String[][] predictedData = getPredictVisitor();
 
-        // Counting visitors per date using a map
-        Map<LocalDate, Integer> visitorCountMap = new HashMap<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        // Step 2: Set up JavaFX stage and scene
+        stage.setTitle("Predicted Visitor Bar Chart");
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setVgap(10);
+        grid.setHgap(10);
+        grid.setPadding(new Insets(25, 25, 25, 25));
 
-        for (String entry : visitorList) {
-            String[] parts = entry.split(" ");
-            String dateString = parts[0] + " " + parts[1];
-            LocalDate date = LocalDate.parse(parts[0], DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            visitorCountMap.put(date, visitorCountMap.getOrDefault(date, 0) + 1);
+        VBox hbboxBtn = new VBox(10);
+
+        // Step 3: Prepare data for the chart
+        ObservableList<XYChart.Data<String, Number>> barChartData = FXCollections.observableArrayList();
+
+        for (int i = 0; i < predictedData.length; i++) {
+            String date = predictedData[i][0];
+            int visitors = Integer.parseInt(predictedData[i][1]);
+            barChartData.add(new XYChart.Data<>(date, visitors));
         }
 
-        // Prepare data for regression
-        List<Double> xValues = new ArrayList<>();
-        List<Double> yValues = new ArrayList<>();
-        for (Map.Entry<LocalDate, Integer> entry : visitorCountMap.entrySet()) {
-            double x = entry.getKey().toEpochDay(); // Use epoch day as x value (ordinal date)
-            double y = entry.getValue();
-            xValues.add(x);
-            yValues.add(y);
-        }
+        // Step 4: Set up the axes
+        CategoryAxis xAxis = new CategoryAxis();
+        xAxis.setLabel("Date");
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Visitor Count");
 
-        // Perform linear regression
-        double[] regressionParameters = calculateLinearRegression(xValues, yValues);
+        // Step 5: Set up the bar chart
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+        barChart.setTitle("Predicted Visitor Count per Date");
 
-        // Calculate predicted values for plotting the regression line
-        double minX = xValues.get(0);
-        double maxX = xValues.get(xValues.size() - 1);
-        double minY = regressionParameters[0] + regressionParameters[1] * minX;
-        double maxY = regressionParameters[0] + regressionParameters[1] * maxX;
+        // Step 6: Add data to the chart
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Visitors");
+        series.setData(barChartData);
 
-        // Create chart
-        NumberAxis xAxis = new NumberAxis("Date (Epoch Day)", minX, maxX, 1);
-        NumberAxis yAxis = new NumberAxis("Visitor Count", minY, maxY, 1);
-        ScatterChart<Number, Number> scatterChart = new ScatterChart<>(xAxis, yAxis);
-        scatterChart.setTitle("Visitor Count Regression");
+        barChart.getData().add(series);
+        grid.add(barChart, 0, 0);
 
-        // Add historical data as scatter points
-        XYChart.Series<Number, Number> series = new XYChart.Series<>();
-        series.setName("Historical Data");
-        for (int i = 0; i < xValues.size(); i++) {
-            series.getData().add(new XYChart.Data<>(xValues.get(i), yValues.get(i)));
-        }
+        // Step 7: Create a back button (optional)
+        Button btnBack = new Button("BACK");
+        hbboxBtn.getChildren().addAll(btnBack);
+        hbboxBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        grid.add(hbboxBtn, 0, 1);
+        btnBack.setOnAction(event -> {
+            stage.setScene(UIManager.getPreviousLayout());
+        });
 
-        // Add regression line
-        XYChart.Series<Number, Number> regressionLine = new XYChart.Series<>();
-        regressionLine.setName("Regression Line");
-        regressionLine.getData().add(new XYChart.Data<>(minX, minY));
-        regressionLine.getData().add(new XYChart.Data<>(maxX, maxY));
-
-        scatterChart.getData().addAll(series, regressionLine);
-
-        // Display chart in a VBox
-        VBox vbox = new VBox(scatterChart);
-        Scene scene = new Scene(vbox, 800, 600);
-
+        // Step 8: Display the scene
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight()); // Adjust size as needed
         stage.setScene(scene);
         stage.show();
     }
 
-    private double[] calculateLinearRegression(List<Double> xValues, List<Double> yValues) {
-        int n = xValues.size();
-        double sumX = 0, sumY = 0, sumXY = 0, sumXX = 0;
+    private String[][] getPredictVisitor() {
+        Map<String, Integer> visitorCountMap = new TreeMap<>(); // TreeMap will sort keys (dates) naturally
 
-        for (int i = 0; i < n; i++) {
-            double x = xValues.get(i);
-            double y = yValues.get(i);
-            sumX += x;
-            sumY += y;
-            sumXY += x * y;
-            sumXX += x * x;
+        for (String entry : visitorList) {
+            String[] parts = entry.split(" ");
+            String date = parts[0];
+            visitorCountMap.put(date, visitorCountMap.getOrDefault(date, 0) + 1);
+        }
+        // Save the visitor count data to an array
+        String[][] visitorDataArray = saveVisitorDataToArray(visitorCountMap);
+        double[] numVisitor = new double[visitorDataArray.length+1];
+        double[] days = new double[visitorDataArray.length+1];
+
+        String[][] newArray = new String[6][2];
+
+        for (int i = 0; i < visitorDataArray.length; i++) {
+            String[] row = visitorDataArray[i];
+            int visitors = Integer.parseInt(row[1]);
+            numVisitor[i] = visitors;
+            days[i] = i+1;
+            if (i == visitorDataArray.length-1) {
+                newArray[0][0] = visitorDataArray[i][0]; // Salin tanggal
+                newArray[0][1] = visitorDataArray[i][1]; // Salin jumlah pengunjung
+            }
         }
 
-        double slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
-        double intercept = (sumY - slope * sumX) / n;
+        // Menghitung rata-rata dari days dan visitors
+        double meanDays = mean(days);
+        double meanVisitors = mean(numVisitor);
 
-        return new double[]{intercept, slope};
+        // Menghitung koefisien m (slope) dari regresi linear
+        double m = calculateSlope(days, numVisitor, meanDays, meanVisitors);
+
+        // Menghitung intercept c dari regresi linear
+        double c = calculateIntercept(meanDays, meanVisitors, m);
+
+        double dayToPredict,predictedVisitors;
+
+        editTime = getDate();
+        for(int i = 0; i < 5;i++){
+            incrementDate();
+            dayToPredict = visitorDataArray.length+i+1;
+            predictedVisitors = predict(m, c, dayToPredict);
+            int convert = (int) predictedVisitors;
+            newArray[i+1][0] = getEditTime(); // Salin jumlah pengunjung
+            newArray[i+1][1] = String.valueOf(convert); // Salin jumlah pengunjun
+
+
+        }
+        return newArray;
     }
+    public static void incrementDate(){
+        LocalDate convertDate = LocalDate.parse(getEditTime());
+        // Menambahkan satu hari
+        LocalDate newDate = convertDate.plusDays(1);
+        setEditTime(newDate.toString());
+    }
+
+    // Fungsi untuk menghitung rata-rata
+    private static double mean(double[] data) {
+        double sum = 0;
+        for (double value : data) {
+            sum += value;
+        }
+        return sum / data.length;
+    }
+
+    // Fungsi untuk menghitung koefisien m (slope)
+    private static double calculateSlope(double[] days, double[] visitors, double meanDays, double meanVisitors) {
+        double numerator = 0;
+        double denominator = 0;
+        for (int i = 0; i < days.length; i++) {
+            numerator += (days[i] - meanDays) * (visitors[i] - meanVisitors);
+            denominator += Math.pow((days[i] - meanDays), 2);
+        }
+        return numerator / denominator;
+    }
+
+    // Fungsi untuk menghitung intercept c
+    private static double calculateIntercept(double meanDays, double meanVisitors, double m) {
+        return meanVisitors - (m * meanDays);
+    }
+
+    // Fungsi untuk melakukan prediksi
+    private static double predict(double m, double c, double day) {
+        return m * day + c;
+    }
+
 
     public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program) {
         admin.addStudent(name,NIM,faculty,program);
@@ -350,7 +386,6 @@ public class Admin extends User implements IMenu {
         //int totalStudents = studentList.size(); // Total number of students
         int totalVisitor = visitorList.size();
         for (String student : visitorList){
-            System.out.println(student);
             String[] parts = student.split(" ");
             for (Student findX : studentData){;
                 if (parts[2].equals(findX.getNIM())){
@@ -390,6 +425,19 @@ public class Admin extends User implements IMenu {
 
     }
 
+    public static String[][] saveVisitorDataToArray(Map<String, Integer> visitorCountMap) {
+        // Membuat array dua dimensi untuk menyimpan data (baris x 2 kolom)
+        String[][] visitorDataArray = new String[visitorCountMap.size()][2];
+        int i = 0;
+
+        for (Map.Entry<String, Integer> entry : visitorCountMap.entrySet()) {
+            visitorDataArray[i][0] = entry.getKey(); // Tanggal
+            visitorDataArray[i][1] = String.valueOf(entry.getValue()); // Jumlah pengunjung
+            i++;
+        }
+        return visitorDataArray;
+    }
+
     public void displayVisitor(Stage stage) {
         UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
         stage.setTitle("Visitor Bar Chart");
@@ -397,7 +445,7 @@ public class Admin extends User implements IMenu {
         grid.setAlignment(Pos.CENTER);
         grid.setVgap(10);
         grid.setHgap(10);
-        grid.setPadding(new Insets(25,25,25,25));
+        grid.setPadding(new Insets(25, 25, 25, 25));
 
         VBox hbboxBtn = new VBox(10);
 
@@ -410,11 +458,14 @@ public class Admin extends User implements IMenu {
             visitorCountMap.put(date, visitorCountMap.getOrDefault(date, 0) + 1);
         }
 
+        // Save the visitor count data to an array
+        String[][] visitorDataArray = saveVisitorDataToArray(visitorCountMap);
+
         // Prepare data for the chart, already sorted by date
         ObservableList<XYChart.Data<String, Number>> barChartData = FXCollections.observableArrayList();
 
-        for (Map.Entry<String, Integer> entry : visitorCountMap.entrySet()) {
-            barChartData.add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+        for (String[] entry : visitorDataArray) {
+            barChartData.add(new XYChart.Data<>(entry[0], Integer.parseInt(entry[1])));
         }
 
         // Set up the axes
@@ -433,16 +484,15 @@ public class Admin extends User implements IMenu {
         series.setData(barChartData);
 
         barChart.getData().add(series);
-        grid.add(barChart,0,0);
+        grid.add(barChart, 0, 0);
 
         // Create a back button
         Button btnBack = new Button("BACK");
         hbboxBtn.getChildren().addAll(btnBack);
         hbboxBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        grid.add(hbboxBtn,0,1);
+        grid.add(hbboxBtn, 0, 1);
         btnBack.setOnAction(event -> {
             stage.setScene(UIManager.getPreviousLayout());
-
         });
 
         Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
@@ -450,6 +500,7 @@ public class Admin extends User implements IMenu {
         stage.setScene(scene);
         stage.show();
     }
+
 
     public void addStudent(Stage stage) {
         UIManager.setPreviousLayout(stage.getScene());
@@ -534,77 +585,6 @@ public class Admin extends User implements IMenu {
             }
         });
     }
-
-//    public void addStudent(Stage stage){
-//        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
-//        GridPane grid = new GridPane();
-//        grid.setAlignment(Pos.CENTER);
-//        grid.setHgap(10); // Jarak horizontal antar kolom
-//        grid.setVgap(10); // Jarak vertikal antar baris
-//        grid.setPadding(new Insets(25, 25, 25, 25));
-//        Text sceneTitle = new Text("Add Student");
-//        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-//        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
-//
-//        Label name = new Label("Name :");
-//        grid.add(name, 0, 1); // Kolom 0, Baris 1
-//        TextField inputName = new TextField();
-//        inputName.setPromptText("Enter student name");
-//        grid.add(inputName, 1, 1); // Kolom 1, Baris 1
-//
-//        Label NIM = new Label("NIM : ");
-//        grid.add(NIM, 0, 2);
-//        TextField inputNIM = new TextField();
-//        inputNIM.setPromptText("Enter student NIM");
-//        grid.add(inputNIM, 1, 2);
-//
-//        Label faculty = new Label("Faculty");
-//        grid.add(faculty,0,3);
-//        TextField inputFaculty = new TextField();
-//        inputFaculty.setPromptText("Enter student faculty");
-//        grid.add(inputFaculty,1,3);
-//
-//        Label program = new Label("Program");
-//        grid.add(program,0,4);
-//        TextField inputProgram = new TextField();
-//        inputProgram.setPromptText("Enter student program");
-//        grid.add(inputProgram,1,4);
-//
-//        Button btnSubmit = new Button("SUBMIT");
-//        Button btnBack = new Button("BACK");
-//        HBox hBBtn = new HBox(10);
-//        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
-//        hBBtn.getChildren().addAll(btnBack, btnSubmit);
-//        grid.add(hBBtn, 1, 5);
-//
-//        final Text actionTarget = new Text();
-//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-//        grid.add(actionTarget, 1, 6);
-//
-//        btnSubmit.setOnAction(actionEvent -> {
-//            Student student = Main.checkNIM(inputName.getText(),inputNIM.getText(),inputFaculty.getText(),inputProgram.getText());
-//            if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || inputFaculty.getText().isEmpty()||inputProgram.getText().isEmpty())
-//                UIManager.showError(actionTarget,"PLEASE FILL ALL BLANKS");
-//            else if(inputNIM.getText().length()< 15)
-//                UIManager.showError(actionTarget,"NIM MUST 15 CHARACTERS");
-//            else if(student == null)
-//                UIManager.showError(actionTarget,"NIM SAME");
-//            else {
-//                Main.addTempStudent(this,inputName.getText(),inputNIM.getText(),inputFaculty.getText(),inputProgram.getText());
-//                UIManager.showSuccess(actionTarget,"STUDENT ADDED SUCCESSFULY");
-//            }
-//        });
-//
-//        btnBack.setOnAction(actionEvent -> {
-//            stage.setScene(UIManager.getPreviousLayout());
-//        });
-//
-//        Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
-//        stage.setTitle("ADD STUDENT MENU");
-//        stage.setScene(scene);
-//        stage.show();
-//    }
-
     public void displayStudent(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
         final Label label = new Label("REGISTERED STUDENTS");
@@ -942,6 +922,40 @@ public class Admin extends User implements IMenu {
 
     public static void addVisitor(String student){
         visitorList.add(student);
+    }
+    public static void updateDate(){
+        LocalDate currentDate = LocalDate.parse(getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        LocalDate nextDay = currentDate.plusDays(1);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        setDate(nextDay.format(formatter));
+    }
+
+    public static String getEditTime() {
+        return editTime;
+    }
+    public static void setEditTime(String editTime) {
+        Admin.editTime = editTime;
+    }
+
+    public static String getTime() {
+        return time;
+    }
+
+    public static void setDate(String newDate){
+        date = newDate;
+    }
+
+
+    public static void firstDate() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        setDate(now.format(formatter));
+    }
+
+    public static void setTime() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        time = now.format(formatter);
     }
 
     public boolean isAdmin(String username, String pass) throws illegalAdminAcces {
