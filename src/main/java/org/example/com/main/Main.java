@@ -14,16 +14,18 @@ import org.example.com.main.data.Admin;
 import org.example.com.main.data.Student;
 import org.example.com.main.data.User;
 import java.io.IOException;
-import java.util.Scanner;
 
 public class Main extends Application{
     public static void main(String[] args) {
+        Admin.firstDate();
         addUser();
         launch(args);
     }
     public static void addUser(){
-        Student student1 = new Student("AGUS","123","TEKNIK","INFORMATIKA");
-        Student student2 = new Student("AHMAD","234","KEDOKTERAN","DOKTER");
+        Student student1 = new Student("AGUS","123","FT","INFORMATIKA");
+        Student student2 = new Student("AHMAD","234","FKIP","PENDIDIKAN MATEMATIKA");
+        student1.addVisitor();
+        student2.addVisitor();
         Admin.getStudentData().add(student1);
         Admin.getStudentData().add(student2);
         Book book1 = new Book("A01","Shingeki No Kyoujin", "HAJIME ISAYAMAN",10);
@@ -40,6 +42,7 @@ public class Main extends Application{
     public void start(Stage stage) throws Exception {
         menu(stage);
     }
+
     public static void menu(Stage stage)throws IOException {
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -84,7 +87,6 @@ public class Main extends Application{
             }
         });
 
-
         btnExit.setOnAction(actionEvent -> {
             try {
                 stage.close();
@@ -96,10 +98,6 @@ public class Main extends Application{
         stage.setTitle("MENU");
         stage.setScene(scene);
         stage.show();
-    }
-    public static String inputNIM(){
-        Scanner inputObj = new Scanner(System.in);
-        return inputObj.nextLine();
     }
     public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program) {
         admin.addStudent(name,NIM,faculty,program);

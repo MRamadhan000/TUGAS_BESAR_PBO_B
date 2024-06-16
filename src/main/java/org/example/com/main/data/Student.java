@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class Student extends User implements IMenu {
-    private String name,faculty,programStudi,NIM;
+    private String name,faculty,programStudi,NIM,consultingClass;
     private ArrayList<Book> borrowedBooks= new ArrayList<>();
     private static ArrayList<Book> studentBook = new ArrayList<>();
     private static String[][] tempBook = new String[10][10];
@@ -33,6 +33,13 @@ public class Student extends User implements IMenu {
         this.NIM = NIM;
         this.faculty = faculty;
         this.programStudi = programStudi;
+        this.consultingClass = "";
+    }
+    public void addVisitor(){
+        Admin.setTime();
+        String format = Admin.getDate() +" " + Admin.getTime() + " "+ this.getNIM();
+        System.out.println(format);
+        Admin.addVisitor(format);
     }
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
@@ -70,6 +77,7 @@ public class Student extends User implements IMenu {
                 Student student = null;
                 student = searchStudent(fieldNIM.getText());
                 if(student != null) {
+                    student.addVisitor();
                     Student.setStudentBook();
                     student.menu(stage);
                 }else
@@ -175,6 +183,7 @@ public class Student extends User implements IMenu {
             menu(stage);
         }
     }
+
 
     @Override
     public void logOut(Stage stage) {
@@ -675,6 +684,14 @@ public class Student extends User implements IMenu {
             if(student.getNIM().equals(inputNIM))
                 return student;
         return null;
+    }
+
+    public String getConsultingClass() {
+        return consultingClass;
+    }
+
+    public void setConsultingClass(String consultingClass) {
+        this.consultingClass = consultingClass;
     }
 
     public String getName() {
