@@ -22,12 +22,19 @@ import org.example.com.main.UI.UIManager;
 import org.example.com.main.books.*;
 import org.example.com.main.util.IMenu;
 import org.example.com.main.exception.custom.illegalAdminAcces;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+
 
 public class Admin extends User implements IMenu {
     private TableView tableStudent = new TableView<>();
@@ -38,9 +45,13 @@ public class Admin extends User implements IMenu {
     private static String editTime;
     private static final ArrayList<Student> studentData = new ArrayList<>();
     private static final ArrayList<String> studentList = new ArrayList<>();
-    private static ArrayList<String> visitorList = new ArrayList<>();
+    private static ArrayList<String> visitorList = new ArrayList<>(); // date time NIM
+    private static ArrayList<String> listBorrowedBook = new ArrayList<>();
+    private static String[][] adminAccount = new String[1][1];
 
-
+    public static void setAdminAccount(){
+        String email,pass;
+    }
 
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
@@ -96,13 +107,96 @@ public class Admin extends User implements IMenu {
             stage.setScene(UIManager.getPreviousLayout());
         });
 
-        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getWidth());
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
         stage.setTitle("LOGIN ADMIN");
         stage.setScene(scene);
         stage.show();
     }
 
+    public static void addToListBorrowed(String str){
+        listBorrowedBook.add(str);
+    }
 
+    public static void removeListBorrowed(String NIM, String bookId){
+        for (String x : listBorrowedBook){
+            String[] str = x.split(",");
+            if (str[0].equals(NIM) && str[1].equals(bookId))
+                listBorrowedBook.remove(x);
+        }
+    }
+
+    public void checkDurationBookBorrowed(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
+        for (String student : listBorrowedBook){
+            String[] str = student.split(",");
+            LocalDate currentTime = LocalDate.parse(Admin.getDate(), formatter);
+            LocalDate deadlineDate = LocalDate.parse(str[3], formatter);
+            long daysBetween = ChronoUnit.DAYS.between(currentTime, deadlineDate);
+            if (daysBetween == 3 ){
+                loadAccount(str[0],str[1],str[3]);
+            }
+        }
+    }
+
+    public void loadAccount(String NIM, String bookId,String deadline){
+        for (Student student : studentData){
+            if (student.getNIM().equals(NIM)){
+                sendEmail(setEmailMessage(student.getNIM(),student.getFaculty(),student.getProgramStudi(),bookId,deadline));
+            }
+        }
+    }
+
+    public void sendEmail(String message){
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com"); // SMTP Host
+        props.put("mail.smtp.port", "587"); // TLS Port
+        props.put("mail.smtp.auth", "true"); // Enable authentication
+        props.put("mail.smtp.starttls.enable", "true"); // Enable STARTTLS
+
+        String mainEmail = "";
+        String password = "";
+
+        // Create a Session with the specified properties
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
+                return new javax.mail.PasswordAuthentication(mainEmail, password);
+            }
+        });
+        // Email details
+        String toEmail = "";
+        String subject = "PERPUSTAKAAN";
+        String body = message;
+
+        try {
+            MimeMessage msg = new MimeMessage(session);
+            // Set message headers
+            msg.addHeader("Content-type", "text/HTML; charset=UTF-8");
+            msg.addHeader("format", "flowed");
+            msg.addHeader("Content-Transfer-Encoding", "8bit");
+
+            msg.setFrom(new InternetAddress(mainEmail, "NoReply-JD"));
+            msg.setReplyTo(InternetAddress.parse(mainEmail, false));
+            msg.setSubject(subject, "UTF-8");
+            msg.setText(body, "UTF-8");
+            msg.setSentDate(new Date());
+            msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
+            System.out.println("Message is ready");
+            Transport.send(msg);
+            System.out.println("Email Sent Successfully!!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String setEmailMessage(String NIM,String faculty,String programStudi,String bookId, String deadline){
+        return String.format(
+                "Peringatan:\n" +
+                        "Mahasiswa dengan NIM %s dari Fakultas %s, Program Studi %s,\n" +
+                        "peminjaman buku dengan ID %s akan habis pada tanggal %s.\n" +
+                        "Harap segera mengembalikan buku tersebut sebelum atau pada tanggal yang ditentukan untuk menghindari denda keterlambatan.",
+                NIM, faculty, programStudi, bookId, deadline
+        );
+    }
 
     @Override
     public void menu(Stage stage) {
@@ -130,18 +224,16 @@ public class Admin extends User implements IMenu {
         hBBtn.getChildren().addAll(btnAddStudent,btnAddBook,btnDisplayStudent,btnDisplayBook,btnEditBook,btnDisplayVisitor,btnDisplayEachFaculty,btnLogOut,btnPredictVisitor,btnClose);
         grid.add(hBBtn,1,3);
 
-        double buttonWidth = 170; // Tentukan lebar tombol
-        double buttonHeight = 30; // Tentukan tinggi tombol
-        btnAddStudent.setPrefSize(buttonWidth, buttonHeight);
-        btnAddBook.setPrefSize(buttonWidth, buttonHeight);
-        btnDisplayBook.setPrefSize(buttonWidth, buttonHeight);
-        btnDisplayStudent.setPrefSize(buttonWidth, buttonHeight);
-        btnEditBook.setPrefSize(buttonWidth,buttonHeight);
-        btnLogOut.setPrefSize(buttonWidth, buttonHeight);
-        btnDisplayVisitor.setPrefSize(buttonWidth,buttonHeight);
-        btnDisplayEachFaculty.setPrefSize(buttonWidth,buttonHeight);
-        btnPredictVisitor.setPrefSize(buttonWidth,buttonHeight);
-        btnClose.setPrefSize(buttonWidth,buttonHeight);
+        btnAddStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnAddBook.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnDisplayBook.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnDisplayStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnEditBook.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnLogOut.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnDisplayVisitor.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnDisplayEachFaculty.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnPredictVisitor.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnClose.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -157,7 +249,7 @@ public class Admin extends User implements IMenu {
 
         btnAddBook.setOnAction(actionEvent -> {
             try {
-               inputBook(stage);
+                inputBook(stage);
             }catch (Exception e){
                 UIManager.showError(actionTarget,e.getMessage());
             }
@@ -173,7 +265,7 @@ public class Admin extends User implements IMenu {
 
         btnDisplayStudent.setOnAction(actionEvent -> {
             try {
-               displayStudent(stage);
+                displayStudent(stage);
             }catch (Exception e){
                 UIManager.showError(actionTarget,e.getMessage());
             }
@@ -181,6 +273,7 @@ public class Admin extends User implements IMenu {
 
         btnClose.setOnAction(actionEvent -> {
             Admin.updateDate();
+            checkDurationBookBorrowed();
             logOut(stage);
         });
 
@@ -276,6 +369,7 @@ public class Admin extends User implements IMenu {
             String date = parts[0];
             visitorCountMap.put(date, visitorCountMap.getOrDefault(date, 0) + 1);
         }
+
         // Save the visitor count data to an array
         String[][] visitorDataArray = saveVisitorDataToArray(visitorCountMap);
         double[] numVisitor = new double[visitorDataArray.length+1];
@@ -283,39 +377,43 @@ public class Admin extends User implements IMenu {
 
         String[][] newArray = new String[6][2];
 
+        SimpleRegression regression = new SimpleRegression();
+
         for (int i = 0; i < visitorDataArray.length; i++) {
-            String[] row = visitorDataArray[i];
-            int visitors = Integer.parseInt(row[1]);
-            numVisitor[i] = visitors;
-            days[i] = i+1;
-            if (i == visitorDataArray.length-1) {
-                newArray[0][0] = visitorDataArray[i][0]; // Salin tanggal
-                newArray[0][1] = visitorDataArray[i][1]; // Salin jumlah pengunjung
+            try {
+                String[] row = visitorDataArray[i];
+                int visitors = Integer.parseInt(row[1]);
+                numVisitor[i] = visitors;
+                days[i] = i + 1;
+
+                regression.addData(i + 1, visitors);
+
+                if (i == visitorDataArray.length - 1) {
+                    newArray[0][0] = visitorDataArray[i][0]; // Copy the last date
+                    newArray[0][1] = visitorDataArray[i][1]; // Copy the last visitor count
+                }
+                System.out.println("VISITOR HARI KE " + (i+1) + " berjumlah " +visitors + " dengan tanggal " + visitorDataArray[i][1]);
+
+            }catch (IndexOutOfBoundsException e){
+                System.err.println(e.getMessage());
             }
         }
-
-        // Menghitung rata-rata dari days dan visitors
-        double meanDays = mean(days);
-        double meanVisitors = mean(numVisitor);
-
-        // Menghitung koefisien m (slope) dari regresi linear
-        double m = calculateSlope(days, numVisitor, meanDays, meanVisitors);
-
-        // Menghitung intercept c dari regresi linear
-        double c = calculateIntercept(meanDays, meanVisitors, m);
-
-        double dayToPredict,predictedVisitors;
+        double dayToPredict, predictedVisitors;
 
         editTime = getDate();
-        for(int i = 0; i < 5;i++){
+        for (int i = 0; i < 5; i++) {
             incrementDate();
-            dayToPredict = visitorDataArray.length+i+1;
-            predictedVisitors = predict(m, c, dayToPredict);
-            int convert = (int) predictedVisitors;
-            newArray[i+1][0] = getEditTime(); // Salin jumlah pengunjung
-            newArray[i+1][1] = String.valueOf(convert); // Salin jumlah pengunjun
+            dayToPredict = visitorDataArray.length + i + 1;
+            predictedVisitors = regression.predict(dayToPredict);
+            System.out.println(predictedVisitors);
+            if (predictedVisitors < 0) {
+                predictedVisitors = 0;
+            }
 
+            int convert = (int) Math.round(predictedVisitors); // Convert to integer
 
+            newArray[i + 1][0] = getEditTime(); // Copy the predicted date
+            newArray[i + 1][1] = String.valueOf(convert); // Copy the predicted visitor count
         }
         return newArray;
     }
@@ -326,48 +424,18 @@ public class Admin extends User implements IMenu {
         setEditTime(newDate.toString());
     }
 
-    // Fungsi untuk menghitung rata-rata
-    private static double mean(double[] data) {
-        double sum = 0;
-        for (double value : data) {
-            sum += value;
-        }
-        return sum / data.length;
+
+    public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program,String email) {
+        admin.addStudent(name,NIM,faculty,program,email);
     }
 
-    // Fungsi untuk menghitung koefisien m (slope)
-    private static double calculateSlope(double[] days, double[] visitors, double meanDays, double meanVisitors) {
-        double numerator = 0;
-        double denominator = 0;
-        for (int i = 0; i < days.length; i++) {
-            numerator += (days[i] - meanDays) * (visitors[i] - meanVisitors);
-            denominator += Math.pow((days[i] - meanDays), 2);
-        }
-        return numerator / denominator;
-    }
-
-    // Fungsi untuk menghitung intercept c
-    private static double calculateIntercept(double meanDays, double meanVisitors, double m) {
-        return meanVisitors - (m * meanDays);
-    }
-
-    // Fungsi untuk melakukan prediksi
-    private static double predict(double m, double c, double day) {
-        return m * day + c;
-    }
-
-
-    public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program) {
-        admin.addStudent(name,NIM,faculty,program);
-    }
-
-    public static Student checkNIM(String name, String NIM, String faculty, String program) {
+    public static Student checkNIM(String name, String NIM, String faculty, String program, String email) {
         for (Student x : Admin.getStudentData()) {
             if (x.getNIM().equals(NIM)) {
                 return null;
             }
         }
-        return new Student(name, NIM, faculty, program);
+        return new Student(name, NIM, faculty, program,email);
     }
 
     public void displayEachFaculty(Stage stage){
@@ -509,7 +577,7 @@ public class Admin extends User implements IMenu {
         facultyToPrograms.put("FEB", new String[]{"MANAJEMEN", "AKUNTANSI", "EKONOMI PEMBANGUNAN"});
         facultyToPrograms.put("FISIP", new String[]{"ILMU KOMUNIKASI", "HUBUNGAN INTERNASIONAL", "ILMU PEMERINTAHAN"});
         facultyToPrograms.put("FKIP", new String[]{"PENDIDIKAN MATEMATIKA", "PENDIDIKAN BIOLOGI", "PENDIDIKANN BAHASA INDONESIA"});
-        facultyToPrograms.put("FT",new String[]{"SIPIL,INFORMATIKA","INDUSTRI","MESIN","ELEKTRO"});
+        facultyToPrograms.put("FT",new String[]{"SIPIL","INFORMATIKA","INDUSTRI","MESIN","ELEKTRO"});
         // Set up the UI
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -544,6 +612,12 @@ public class Admin extends User implements IMenu {
         ComboBox<String> programComboBox = new ComboBox<>();
         grid.add(programComboBox, 1, 4);
 
+        Label email = new Label("Email:");
+        grid.add(email, 0, 5);
+        TextField inputEmail = new TextField();
+        inputEmail.setPromptText("Enter student email");
+        grid.add(inputEmail, 1, 5);
+
         facultyComboBox.setOnAction(e -> {
             String selectedFaculty = facultyComboBox.getValue();
             programComboBox.getItems().clear();
@@ -557,13 +631,13 @@ public class Admin extends User implements IMenu {
         HBox hBBtn = new HBox(10);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack, btnSubmit);
-        grid.add(hBBtn, 1, 5);
+        grid.add(hBBtn, 1, 6);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200);
-        grid.add(actionTarget, 1, 6);
+        grid.add(actionTarget, 1, 7);
 
-        Scene scene = new Scene(grid, 400, 400);
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
         stage.setScene(scene);
         stage.show();
 
@@ -572,15 +646,15 @@ public class Admin extends User implements IMenu {
         });
 
         btnSubmit.setOnAction(event -> {
-            Student student = checkNIM(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
-            if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || facultyComboBox.getValue().isEmpty()||programComboBox.getValue().isEmpty())
+            Student student = checkNIM(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText());
+            if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || facultyComboBox.getValue().isEmpty()||programComboBox.getValue().isEmpty() || inputEmail.getText().isEmpty())
                 UIManager.showError(actionTarget,"PLEASE FILL ALL BLANKS");
-            else if(inputNIM.getText().length()< 15)
+            else if(inputNIM.getText().length() == 15)
                 UIManager.showError(actionTarget,"NIM MUST 15 CHARACTERS");
             else if(student == null)
                 UIManager.showError(actionTarget,"NIM SAME");
             else {
-                addTempStudent(this,inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue());
+                addTempStudent(this,inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText());
                 UIManager.showSuccess(actionTarget,"STUDENT ADDED SUCCESSFULY");
             }
         });
@@ -596,12 +670,15 @@ public class Admin extends User implements IMenu {
         TableColumn<Student,String> nimCol = new TableColumn<>("NIM");
         TableColumn<Student,String> facultyCol = new TableColumn<>("Faculty");
         TableColumn<Student,String> prodiCol = new TableColumn<>("Program Studi");
+        TableColumn<Student,String> emailCol = new TableColumn<>("Email");
+
 
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         nimCol.setCellValueFactory(new PropertyValueFactory<>("nim"));
         facultyCol.setCellValueFactory(new PropertyValueFactory<>("faculty") );
         prodiCol.setCellValueFactory(new PropertyValueFactory<>("programStudi"));
-        tableStudent.getColumns().addAll(nameCol,nimCol,facultyCol,prodiCol);
+        emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
+        tableStudent.getColumns().addAll(nameCol,nimCol,facultyCol,prodiCol,emailCol);
 
         Button backBtn = new Button("Back");
         GridPane gridPane = new GridPane();
@@ -914,8 +991,9 @@ public class Admin extends User implements IMenu {
         stage.show();
     }
 
-    public void addStudent(String name,String NIM, String faculy, String program){
-        Student student = new Student(name,NIM,faculy,program);
+    public void addStudent(String name,String NIM, String faculy, String program,String email){
+        //Student student = new Student(name,NIM,faculy,program,program,email);
+        Student student = new Student(name,NIM,faculy,program,email);
         studentData.add(student);
         studentList.add(NIM);
     }
@@ -927,6 +1005,7 @@ public class Admin extends User implements IMenu {
         LocalDate currentDate = LocalDate.parse(getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         LocalDate nextDay = currentDate.plusDays(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        //System.out.println(nextDay);
         setDate(nextDay.format(formatter));
     }
 
@@ -961,7 +1040,7 @@ public class Admin extends User implements IMenu {
     public boolean isAdmin(String username, String pass) throws illegalAdminAcces {
         if (username.equals(getAdminUserName()) && pass.equals(getAdminPassword()))
             return true;
-         else
+        else
             throw new illegalAdminAcces("Invalid Credentials");
     }
     public String generateId(){

@@ -20,26 +20,28 @@ import org.example.com.main.books.*;
 import org.example.com.main.util.IMenu;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.time.LocalDate;
 import java.util.*;
 
+
 public class Student extends User implements IMenu {
-    private String name,faculty,programStudi,NIM,consultingClass;
+    private String name,faculty,programStudi,NIM,consultingClass,email;
     private ArrayList<Book> borrowedBooks= new ArrayList<>();
     private static ArrayList<Book> studentBook = new ArrayList<>();
     private static String[][] tempBook = new String[10][10];
     private static int numberBorroewd = 0;
     private static ArrayList<String> favoriteBooks = new ArrayList<>();
-private static String arrhari[] = new String[6];
+    private static String arrhari[] = new String[6];
     private static String arrlink[] = new String[6];
+    //private static String[][] jadwal = new ArrayList<>;
 
-
-    public Student(String name, String NIM, String faculty, String programStudi){
+    public Student(String name, String NIM, String faculty, String programStudi,String email){
         this.name = name;
         this.NIM = NIM;
         this.faculty = faculty;
         this.programStudi = programStudi;
+        this.email = email;
         this.consultingClass = "";
-
     }
 
     public static void logIn(Stage stage){
@@ -105,16 +107,9 @@ private static String arrhari[] = new String[6];
         grid.setHgap(10); // Jarak horizontal antar kolom
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
-        Text sceneTitle = new Text("Menu Admin");
+        Text sceneTitle = new Text("STUDENT MENU");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
-
-        TableView<PropertyBook> table = super.createTableView(Student.getStudentBook());
-        VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(table);
-        grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
 
         VBox hBBtn = new VBox(10);
         Button btnBukuT = new Button("Buku Terpinjam");
@@ -123,38 +118,36 @@ private static String arrhari[] = new String[6];
         Button btnOut = new Button("Pinjam Buku atau Logout");
         Button btnDisplayFavorite = new Button("Tampilkan Rekomendasi Buku");
         Button btnUpBook = new Button("Update Buku");
-        Button btnkonsul = new Button("Display Jadwal konsultasi");
-
+        Button btnkonsul = new Button("Daftar Konsultasi");
         hBBtn.setAlignment(Pos.CENTER);
         hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnkonsul);
-        grid.add(hBBtn,1,3);
+        grid.add(hBBtn,1,1);
 
-        double buttonWidth = 170; // Tentukan lebar tombol
-        double buttonHeight = 30; // Tentukan tinggi tombol
-        btnBukuT.setPrefSize(buttonWidth, buttonHeight);
-        btnPinjamB.setPrefSize(buttonWidth, buttonHeight);
-        btnKembalikanB.setPrefSize(buttonWidth, buttonHeight);
-        btnOut.setPrefSize(buttonWidth, buttonHeight);
-        btnUpBook.setPrefSize(buttonWidth,buttonHeight);
-        btnkonsul.setPrefSize(buttonWidth,buttonHeight);
+        btnBukuT.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnPinjamB.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnKembalikanB.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnOut.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnDisplayFavorite.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnUpBook.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnkonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-        grid.add(actionTarget, 1, 4);
+        grid.add(actionTarget, 1, 2);
 
         btnBukuT.setOnAction(actionEvent -> {
             this.displayBook(stage);
         });
 
         btnPinjamB.setOnAction(actionEvent -> {
-          this.pinjamBuku(stage);
+            this.pinjamBuku(stage);
         });
 
         btnKembalikanB.setOnAction(actionEvent -> {
             if(this.borrowedBooks.isEmpty())
                 alertEmptyBook(stage);
             else
-               returnBooks(stage);
+                returnBooks(stage);
         });
 
         btnUpBook.setOnAction(actionEvent -> {
@@ -165,11 +158,11 @@ private static String arrhari[] = new String[6];
         });
 
         btnOut.setOnAction(actionEvent -> {
-           if (numberBorroewd > 0){
-               keepBooks(stage);
-           }else {
-               logOut(stage);
-           }
+            if (numberBorroewd > 0){
+                keepBooks(stage);
+            }else {
+                logOut(stage);
+            }
         });
 
         btnDisplayFavorite.setOnAction(actionEvent -> {
@@ -184,9 +177,101 @@ private static String arrhari[] = new String[6];
         stage.setTitle("STUDENT MENU");
         stage.setScene(scene);
         stage.show();
-
     }
 
+    public void Displayjadwal(Stage stage) {
+        UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.CENTER);
+        grid.setHgap(10); // Jarak horizontal antar kolom
+        grid.setVgap(10); // Jarak vertikal antar baris
+        grid.setPadding(new Insets(25, 25, 25, 25));
+        Text sceneTitle = new Text("Inputkan hari konsultasi");
+        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+
+        Label userName = new Label("Hari :");
+        grid.add(userName, 0, 1); // Kolom 0, Baris 1
+
+        TextField fieldNIM = new TextField();
+        fieldNIM.setPromptText("hari");
+        grid.add(fieldNIM, 1, 1); // Kolom 1, Baris 1
+
+        Button btnSignIn = new Button("Daftar");
+        Button btnBack = new Button("BACK");
+        HBox hBBtn = new HBox(10);
+        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
+        hBBtn.getChildren().addAll(btnBack, btnSignIn);
+        grid.add(hBBtn, 1, 2);
+
+        final Text actionTarget = new Text();
+        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+        grid.add(actionTarget, 1, 3);
+
+        btnSignIn.setOnAction(actionEvent -> {
+            String isvalid = kurangkouta(fieldNIM.getText());
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Hasil Konsultasi");
+            alert.setHeaderText(null);
+            if (isvalid != null) {
+                alert.setContentText("Jadwal Konsultasi: " + isvalid);
+            } else {
+                alert.setContentText("Jadwal tidak tersedia atau kuota penuh.");
+            }
+            alert.showAndWait();
+        });
+
+        btnBack.setOnAction(actionEvent -> {
+            stage.setScene(UIManager.getPreviousLayout());
+        });
+
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        stage.setTitle("LOGIN STUDENT");
+        stage.setScene(scene);
+        stage.show();
+    }
+
+    public static void setJadwalkonsultasi() {
+        String[] hari = {"senin,3", "selasa,3", "rabu,2", "kamis,1", "jum'at,3", "jum'at,2"};
+        String[] link = {"link1", "link2", "link3", "link4", "link5", "link6"};
+
+        for (int i = 0; i < 6; i++) {
+
+            arrhari [i] = hari[i];
+            arrlink [i] = link[i];
+        }
+    }
+
+    public void  checkjadwal() {
+        for (int i = 0; i < 6; i++) {
+            String[] splitHari = arrhari[i].split(",");
+            String hari = splitHari[0];
+            int kouta = Integer.parseInt(splitHari[1]);
+            String link = arrlink[i];
+            System.out.println(hari + kouta);
+            System.out.println(link);
+        }
+    }
+
+    public String kurangkouta (String kurangkouta){
+        for (int i = 0; i < 6; i++) {
+            String[] splitHari = arrhari[i].split(",");
+            String hari = splitHari[0];
+            int kouta = Integer.parseInt(splitHari[1]);
+
+            if (hari.equalsIgnoreCase(kurangkouta)) {
+                if (kouta > 0) {
+                    kouta--;
+                }
+                arrhari[i] = hari + "," + kouta;
+                System.out.println("Kuota untuk hari " + hari + " telah dikurangi. Kuota sekarang: " + kouta);
+                return arrlink[i];
+
+            }
+        }
+        System.out.println("Hari " + kurangkouta + " tidak ditemukan.");
+        return null;
+    }
 
     public ArrayList<Book> getFavoriteBookArr(){
         // Menggunakan HashMap untuk menyimpan jumlah setiap id buku
@@ -438,8 +523,12 @@ private static String arrhari[] = new String[6];
         stage.show();
     }
 
-    public void addToFavoretBook(String bookId){
-
+    public String formatTimeBorrowed(String bookId,int days){
+        System.out.println("masuk3");
+        LocalDate convertDate = LocalDate.parse(Admin.getDate());
+        LocalDate newDate = convertDate.plusDays(days);
+        System.out.println(this.getNIM() +"," + bookId + "," + Admin.getDate() + "," + newDate.toString());
+        return this.getNIM() +"," + bookId + "," + Admin.getDate() + "," + newDate.toString();
     }
 
     public void keepBooks(Stage stage){
@@ -486,6 +575,7 @@ private static String arrhari[] = new String[6];
         grid.add(actionTarget, 1, 3);
 
         btnSave.setOnAction(actionEvent -> {
+            System.out.println("masuk");
             addTempBook(this,numberBorroewd,tempBook);
             UIManager.showSuccess(actionTarget,"BOO HAS BEEN SAVE");
             logOut(stage);
@@ -503,8 +593,12 @@ private static String arrhari[] = new String[6];
     }
 
     public static void addTempBook(Student student,int numberBorrowed, String[][] arr) {
-        for (int i = 0; i < numberBorrowed; i++)
-            student.choiceBook(arr[i][0],Integer.parseInt(arr[i][1]));
+        System.out.println("masuk1");
+        for (int i = 0; i < numberBorrowed; i++) {
+            student.choiceBook(arr[i][0], Integer.parseInt(arr[i][1]));
+            //FORMAT TIME = nim,bookId,currentTime,newTime
+            Admin.addToListBorrowed(student.formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]) ));
+        }
     }
 
     public void returnBooks(Stage stage){
@@ -552,6 +646,7 @@ private static String arrhari[] = new String[6];
                 UIManager.showError(actionTarget, "Book with id " + fieldId.getText() + " is not found");
             }else {
                 this.changeAmountBook(book,fieldId.getText());
+                Admin.removeListBorrowed(this.getNIM(),book.getBookId());
                 UIManager.showSuccess(actionTarget,"BOOK RETURNED SCCESSFULLY");
                 stage.close();
                 pinjamBuku(stage);
@@ -757,74 +852,7 @@ private static String arrhari[] = new String[6];
         borrowedBooks.add(book);
     }
 
-//    public static void setJadwalkonsultasi(){
-//        String[] hari = {"senin,3","selasa,3","rabu,2","kamis,1","jum'at,3","jum'at,2"};
-//        String[] link = {"link1","link2"};
-//
-//        for (int i =0;i<6;i++){
-//            jadwalkonsultasi[i][0] = hari [i];
-//            jadwalkonsultasi[i][1] = link [i];
-//        }
-//    }
-// Metode untuk menginisialisasi array jadwalkonsultasi
-public static void setJadwalkonsultasi() {
-    String[] hari = {"senin,3", "selasa,3", "rabu,2", "kamis,1", "jum'at,3", "jum'at,2"};
-    String[] link = {"link1", "link2", "link3", "link4", "link5", "link6"};
-
-    for (int i = 0; i < 6; i++) {
-
-        arrhari [i] = hari[i];
-        arrlink [i] = link[i];
-    }
-}
-public void  checkjadwal(){
-    for (int i = 0; i < 6; i++) {
-        String[] splitHari = arrhari[i].split(",");
-        String hari = splitHari[0];
-        int kouta = Integer.parseInt(splitHari[1]);
-        String link = arrlink[i];
-        System.out.println(hari+kouta);
-        System.out.println(link);
-    }
-}
-//public void kurangkouta (String kurangkouta){
-//    for (int i = 0; i < 6; i++) {
-//        String[] splitHari = arrhari[i].split(",");
-//        String hari = splitHari[0];
-//        int kouta = Integer.parseInt(splitHari[1]);
-//
-//        if (hari.equalsIgnoreCase(kurangkouta)) {
-//            if (kouta > 0) {
-//                kouta--;
-//            }
-//            arrhari[i] = hari + "," + kouta;
-//            System.out.println("Kuota untuk hari " + hari + " telah dikurangi. Kuota sekarang: " + kouta);
-//            return;
-//        }
-//    }
-//    System.out.println("Hari " + kurangkouta + " tidak ditemukan.");
-//
-//}
-public String kurangkouta (String kurangkouta){
-    for (int i = 0; i < 6; i++) {
-        String[] splitHari = arrhari[i].split(",");
-        String hari = splitHari[0];
-        int kouta = Integer.parseInt(splitHari[1]);
-
-        if (hari.equalsIgnoreCase(kurangkouta)) {
-            if (kouta > 0) {
-                kouta--;
-            }
-            arrhari[i] = hari + "," + kouta;
-            System.out.println("Kuota untuk hari " + hari + " telah dikurangi. Kuota sekarang: " + kouta);
-            return arrlink[i];
-
-        }
-    }
-    System.out.println("Hari " + kurangkouta + " tidak ditemukan.");
-return null;
-}
-
+    // MENYIMPAN BUKU YANG ADA DI KERANJANG KEK DALAM DATA BUKU MAHASISWA
     public void choiceBook(String bookId,int duration){
         Book book = Student.searchBookAll(bookId);
         Book borrowedBookCopy = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),1);
@@ -878,79 +906,13 @@ return null;
         Admin.addVisitor(format);
     }
 
+    public String getEmail() {
+        return email;
+    }
 
-public void Displayjadwal(Stage stage) {
-    UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
-    GridPane grid = new GridPane();
-    grid.setAlignment(Pos.CENTER);
-    grid.setHgap(10); // Jarak horizontal antar kolom
-    grid.setVgap(10); // Jarak vertikal antar baris
-    grid.setPadding(new Insets(25, 25, 25, 25));
-    Text sceneTitle = new Text("Inputkan hari konsultasi");
-    sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-    grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
-
-    Label userName = new Label("Hari :");
-    grid.add(userName, 0, 1); // Kolom 0, Baris 1
-
-    TextField fieldNIM = new TextField();
-    fieldNIM.setPromptText("hari");
-    grid.add(fieldNIM, 1, 1); // Kolom 1, Baris 1
-
-    Button btnSignIn = new Button("Daftar");
-    Button btnBack = new Button("BACK");
-    HBox hBBtn = new HBox(10);
-    hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
-    hBBtn.getChildren().addAll(btnBack, btnSignIn);
-    grid.add(hBBtn, 1, 2);
-
-    final Text actionTarget = new Text();
-    actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-    grid.add(actionTarget, 1, 3);
-
-    btnSignIn.setOnAction(actionEvent -> {
-String isvalid = kurangkouta(fieldNIM.getText());
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Hasil Konsultasi");
-        alert.setHeaderText(null);
-        if (isvalid != null) {
-            alert.setContentText("Jadwal Konsultasi: " + isvalid);
-        } else {
-            alert.setContentText("Jadwal tidak tersedia atau kuota penuh.");
-        }
-        alert.showAndWait();
-    });
-
-    btnBack.setOnAction(actionEvent -> {
-        stage.setScene(UIManager.getPreviousLayout());
-    });
-
-    Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
-    stage.setTitle("LOGIN STUDENT");
-    stage.setScene(scene);
-    stage.show();
-}
-
-//    public void checkjadwal(String hari) {
-//        setConsultingClass(hari);
-//        System.out.println("Jadwal konsultasi " + this.getConsultingClass());
-//
-//        for (int i = 0; i < 6; i++) {
-//            try {
-//                String split[] = jadwalkonsultasi[i][0].split(","); // sebagai pemisah antara hari dan jumlah peserta
-//                String harijadwal = split[0];
-//                int jumlahkouta = Integer.parseInt(split[1]); // misal senin : 3 (kouta)
-//
-//                if (hari.equals(harijadwal)) {
-//                    jumlahkouta -= 1;
-//                    jadwalkonsultasi[i][0] = harijadwal + "," + String.valueOf(jumlahkouta);
-//                }
-//            } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-//                System.err.println("Error processing schedule: " + e.getMessage());
-//            }
-//        }
-//    }
-
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getConsultingClass() {
         return consultingClass;

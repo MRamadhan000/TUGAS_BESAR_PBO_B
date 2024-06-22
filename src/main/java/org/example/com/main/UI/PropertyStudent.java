@@ -7,18 +7,20 @@ public class PropertyStudent {
     private final SimpleStringProperty nim;
     private final SimpleStringProperty faculty;
     private final SimpleStringProperty programStudi;
+    private final SimpleStringProperty email;
 
-    public PropertyStudent(String name, String nim, String faculty, String programStudi) {
+    public PropertyStudent(String name, String nim, String faculty, String programStudi,String email) {
         this.name = new SimpleStringProperty(name);
         this.nim = new SimpleStringProperty(nim);
         this.faculty = new SimpleStringProperty(faculty);
         this.programStudi = new SimpleStringProperty(programStudi);
+        this.email = new SimpleStringProperty(email);
     }
 
     public static ArrayList<PropertyStudent> studentToProperty(ArrayList<Student> arr) {
         ArrayList<PropertyStudent> temp = new ArrayList<>();
         for (Student student : arr) {
-            PropertyStudent obj = new PropertyStudent(student.getName(), student.getNIM(), student.getFaculty(), student.getProgramStudi());
+            PropertyStudent obj = new PropertyStudent(student.getName(), student.getNIM(), student.getFaculty(), student.getProgramStudi(),student.getEmail());
             temp.add(obj);
         }
         return temp;
@@ -71,5 +73,16 @@ public class PropertyStudent {
     public void setProgramStudi(String programStudi) {
         this.programStudi.set(programStudi);
     }
-}
 
+    public String getEmail() {
+        return email.get();
+    }
+
+    public SimpleStringProperty emailProperty() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email.set(email);
+    }
+}

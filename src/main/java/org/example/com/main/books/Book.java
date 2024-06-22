@@ -1,27 +1,26 @@
 package org.example.com.main.books;
 
 public class Book {
-    private String bookId, title, author, category,jadwal;
+    private String bookId, title, author, category;
     private int stock, duration;
-    public Book(String bookId, String title, String author, int stock,String J) {
+    public Book(String bookId, String title, String author, int stock) {
         this.bookId = bookId;
         this.title = title;
         this.author = author;
         this.stock = stock;
         this.duration = 0;
-        this.jadwal = jadwal;
     }
 
-    public Book(String bookId, String title, String author, int stock) {
-    }
+//    public Book(String bookId, String title, String author, int stock) {
+//    }
 
-    public void setJadwal(String jadwal) {
-        this.jadwal = jadwal;
-    }
-
-    public String getJadwal() {
-        return this.jadwal;
-    }
+//    public void setJadwal(String jadwal) {
+//        this.jadwal = jadwal;
+//    }
+//
+//    public String getJadwal() {
+//        return this.jadwal;
+//    }
     public void setBookId(String bookId) {
         this.bookId = bookId;
     }

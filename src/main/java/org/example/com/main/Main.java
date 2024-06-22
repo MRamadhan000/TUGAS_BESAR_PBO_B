@@ -16,13 +16,40 @@ import org.example.com.main.data.User;
 import java.io.IOException;
 
 public class Main extends Application{
-
     public static void main(String[] args) {
         Admin.firstDate();
         Student.setJadwalkonsultasi();
-        addUser();
+        addUser2();
         launch(args);
     }
+
+    public static void addUser2(){
+        for (int i = 0; i < 10; i++){
+            String bookId = "A0"+i;
+            Book book = new Book(bookId,"A","RANDOMA",i+2);
+            book.setCategory("Story");
+            User.getBookList().add(book);
+            Student student = new Student("AGUS",String.valueOf(i+100),"FT","INFORMATIKA","email@gmail.com");
+            Admin.getStudentData().add(student);
+            if(i%2 == 0 && i > 4) {
+                Admin.updateDate();
+                Student.getFavoriteBooks().add(bookId);
+            }
+
+            if (i == 8){
+                for (int x = 0; x < 20; x++){
+                    student.addVisitor();
+                }
+            }
+            if (i %2 == 0 ) {
+                Student.getFavoriteBooks().add(bookId);
+                student.addVisitor();
+            }
+            Student.getFavoriteBooks().add(bookId);
+            student.addVisitor();
+        }
+    }
+
     public static void addUser(){
         for (int i = 0; i < 10; i++){
             String bookId = "A0"+i;
@@ -30,15 +57,21 @@ public class Main extends Application{
             book.setCategory("Story");
             User.getBookList().add(book);
 
-            Student student = new Student("AGUS",String.valueOf(i+100),"FT","INFORMATIKA");
+            Student student = new Student("AGUS",String.valueOf(i+100),"FT","INFORMATIKA","email@gmail.com");
             Admin.getStudentData().add(student);
             if(i%2 == 0 && i >4) {
                 Admin.updateDate();
                 Student.getFavoriteBooks().add(bookId);
+                student.addVisitor();
+                student.addVisitor();
             }
-            if (i %2 == 0 )
+            if (i %2 == 0 ) {
                 Student.getFavoriteBooks().add(bookId);
+                student.addVisitor();
+            }
             Student.getFavoriteBooks().add(bookId);
+            student.addVisitor();
+            student.addVisitor();
             student.addVisitor();
         }
     }
@@ -60,11 +93,9 @@ public class Main extends Application{
         Button btnLogStudent = new Button("Login As Student");
         Button btnExit = new Button("EXIT");
 
-        double buttonWidth = 150; // Tentukan lebar tombol
-        double buttonHeight = 30; // Tentukan tinggi tombol
-        btnLogAdmin.setPrefSize(buttonWidth, buttonHeight);
-        btnLogStudent.setPrefSize(buttonWidth, buttonHeight);
-        btnExit.setPrefSize(buttonWidth, buttonHeight);
+        btnLogAdmin.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnLogStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+        btnExit.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
 
         hboxBtn.setAlignment(Pos.CENTER);
         hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
@@ -102,7 +133,4 @@ public class Main extends Application{
         stage.setScene(scene);
         stage.show();
     }
-
-
-
 }

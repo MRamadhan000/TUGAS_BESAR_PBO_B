@@ -5,10 +5,13 @@ import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+
 public class UIManager{
     private static Scene previousLayout;
-    private static int width = 420;
-    private static int height = 420;
+    private static int width = 800;
+    private static int height = 600;
+    private static int buttonWidth = 200;
+    private static int buttonHeight = 30;
     public static void setPreviousLayout(Scene scene) {
         previousLayout = scene;
     }
@@ -41,5 +44,13 @@ public class UIManager{
 
     public static int getHeight() {
         return height;
+    }
+
+    public static int getButtonWidth() {
+        return buttonWidth;
+    }
+
+    public static int getButtonHeight() {
+        return buttonHeight;
     }
 }
