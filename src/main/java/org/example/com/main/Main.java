@@ -4,6 +4,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -86,7 +88,15 @@ public class Main extends Application{
         grid.setAlignment(Pos.CENTER);
         grid.setVgap(10);
         grid.setHgap(10);
-        grid.setPadding(new Insets(25,25,25,25));
+        grid.setPadding(new Insets(25, 25, 25, 25));
+
+        // Add image at the top
+        ImageView imageView = new ImageView(new Image(Main.class.getResource("/Image/logos.jpg").toString()));
+        imageView.setFitWidth(200); // Set desired width
+        imageView.setPreserveRatio(true); // Preserve the aspect ratio
+        grid.add(imageView, 0, 0, 2, 1); // Span across 2 columns
+
+        grid.setStyle("-fx-background-color: #686D76;");
 
         VBox hboxBtn = new VBox(10);
         Button btnLogAdmin = new Button("Login As Admin");
@@ -98,8 +108,8 @@ public class Main extends Application{
         btnExit.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
 
         hboxBtn.setAlignment(Pos.CENTER);
-        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
-        grid.add(hboxBtn,1,3);
+        hboxBtn.getChildren().addAll(btnLogAdmin, btnLogStudent, btnExit);
+        grid.add(hboxBtn, 1, 3);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -116,21 +126,72 @@ public class Main extends Application{
         btnLogStudent.setOnAction(actionEvent -> {
             try {
                 Student.logIn(stage);
-            }catch (Exception e){
-                actionTarget.setText("An error occured " + e.getMessage());
+            } catch (Exception e) {
+                actionTarget.setText("An error occurred: " + e.getMessage());
             }
         });
 
         btnExit.setOnAction(actionEvent -> {
             try {
                 stage.close();
-            }catch (Exception e){
-                actionTarget.setText("An error occured " + e.getMessage());
-            };
+            } catch (Exception e) {
+                actionTarget.setText("An error occurred: " + e.getMessage());
+            }
         });
-        Scene scene = new Scene(grid, UIManager.getWidth(),UIManager.getHeight());
+
+        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
         stage.setTitle("MENU");
         stage.setScene(scene);
         stage.show();
+//        GridPane grid = new GridPane();
+//        grid.setAlignment(Pos.CENTER);
+//        grid.setVgap(10);
+//        grid.setHgap(10);
+//        grid.setPadding(new Insets(25,25,25,25));
+//
+//        VBox hboxBtn = new VBox(10);
+//        Button btnLogAdmin = new Button("Login As Admin");
+//        Button btnLogStudent = new Button("Login As Student");
+//        Button btnExit = new Button("EXIT");
+//
+//        btnLogAdmin.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+//        btnLogStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+//        btnExit.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+//
+//        hboxBtn.setAlignment(Pos.CENTER);
+//        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
+//        grid.add(hboxBtn,1,3);
+//
+//        final Text actionTarget = new Text();
+//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
+//        grid.add(actionTarget, 1, 6);
+//
+//        btnLogAdmin.setOnAction(actionEvent -> {
+//            try {
+//                Admin.logIn(stage);
+//            } catch (Exception e) {
+//                actionTarget.setText("An error occurred: " + e.getMessage());
+//            }
+//        });
+//
+//        btnLogStudent.setOnAction(actionEvent -> {
+//            try {
+//                Student.logIn(stage);
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured " + e.getMessage());
+//            }
+//        });
+//
+//        btnExit.setOnAction(actionEvent -> {
+//            try {
+//                stage.close();
+//            }catch (Exception e){
+//                actionTarget.setText("An error occured " + e.getMessage());
+//            };
+//        });
+//        Scene scene = new Scene(grid, UIManager.getWidth(),UIManager.getHeight());
+//        stage.setTitle("MENU");
+//        stage.setScene(scene);
+//        stage.show();
     }
 }
