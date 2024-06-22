@@ -16,8 +16,10 @@ import org.example.com.main.data.User;
 import java.io.IOException;
 
 public class Main extends Application{
+
     public static void main(String[] args) {
         Admin.firstDate();
+        Student.setJadwalkonsultasi();
         addUser();
         launch(args);
     }
