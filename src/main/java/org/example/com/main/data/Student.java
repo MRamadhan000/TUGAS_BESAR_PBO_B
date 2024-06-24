@@ -44,6 +44,15 @@ public class Student extends User implements IMenu {
         this.consultingClass = "";
     }
 
+    public Student(String name, String NIM, String faculty, String programStudi,String email, String consultingClass){
+        this.name = name;
+        this.NIM = NIM;
+        this.faculty = faculty;
+        this.programStudi = programStudi;
+        this.email = email;
+        this.consultingClass = consultingClass;
+    }
+
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
         GridPane grid = new GridPane();
