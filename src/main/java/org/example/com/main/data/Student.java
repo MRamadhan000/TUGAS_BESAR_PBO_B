@@ -128,8 +128,9 @@ public class Student extends User implements IMenu {
         Button btnDisplayFavorite = new Button("Tampilkan Rekomendasi Buku");
         Button btnUpBook = new Button("Update Buku");
         Button btnkonsul = new Button("Daftar Konsultasi");
+        Button btntampiljad = new Button("Tampilkan Jadwal");
         hBBtn.setAlignment(Pos.CENTER);
-        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnkonsul);
+        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnkonsul,btntampiljad);
         grid.add(hBBtn,1,1);
 
         btnBukuT.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
@@ -139,6 +140,7 @@ public class Student extends User implements IMenu {
         btnDisplayFavorite.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
         btnUpBook.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
         btnkonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btntampiljad.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -178,9 +180,47 @@ public class Student extends User implements IMenu {
             displayFavoriteBook(stage);
         });
 
+
         btnkonsul.setOnAction(actionEvent -> {
-            Displayjadwal(stage);
+            String nim = this.getNIM(); // Mengambil NIM
+            String tahunStr = nim.substring(0, 4); // Mengambil 4 karakter pertama
+            int tahun = Integer.parseInt(tahunStr); // Mengubah string menjadi integer
+
+            if (tahun == 2023) {
+                // Tampilkan pesan bahwa pendaftaran tidak diperbolehkan
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Pendaftaran Ditolak");
+                alert.setHeaderText(null);
+                alert.setContentText("Anda tidak dapat mendaftar karena NIM Anda adalah tahun 2023.");
+                alert.showAndWait();
+            } else  {
+                // Tampilkan jadwal=
+                Displayjadwal(stage);
+
+
+            }
         });
+
+        btntampiljad.setOnAction(actionEvent -> {
+
+            if (this.getConsultingClass().equals("none")|| this.getConsultingClass().equals("") ){
+
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Pendaftaran Ditolak");
+                alert.setHeaderText(null);
+                alert.setContentText("anda belum mendaftar kelas ");
+                alert.showAndWait();
+            } else  {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Pendaftaran Ditolak");
+                alert.setHeaderText(null);
+                alert.setContentText("jadwal kelas anda " + this.getConsultingClass()+this);
+                alert.showAndWait();
+
+
+            }
+        });
+
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
         stage.setTitle("STUDENT MENU");
@@ -224,8 +264,9 @@ public class Student extends User implements IMenu {
             alert.setHeaderText(null);
             if (isvalid != null) {
                 alert.setContentText("Jadwal Konsultasi: " + isvalid);
+                this.setConsultingClass(fieldNIM.getText());
             } else {
-                alert.setContentText("Jadwal tidak tersedia atau kuota penuh.");
+                alert.setContentText("Jadwal tidak tersedia atau kuotpenuha .");
             }
             alert.showAndWait();
         });

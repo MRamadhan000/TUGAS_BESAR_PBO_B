@@ -22,16 +22,23 @@ public class Main extends Application{
         Admin.firstDate();
         Student.setJadwalkonsultasi();
         addUser2();
+
         launch(args);
     }
 
     public static void addUser2(){
+        Student student1 = new Student("AGUS",String.valueOf(2023),"FT","INFORMATIKA","agus@gmail.com","senin");
+        Admin.getStudentData().add(student1);
+        Student student2= new Student("Mehmed",String.valueOf(2022),"FT","INFORMATIKA","mehmed@gmail.com");
+        Admin.getStudentData().add(student2);
+
         for (int i = 0; i < 10; i++){
             String bookId = "A0"+i;
             Book book = new Book(bookId,"A","RANDOMA",i+2);
             book.setCategory("Story");
             User.getBookList().add(book);
-            Student student = new Student("AGUS",String.valueOf(i+100),"FT","INFORMATIKA","email@gmail.com");
+
+            Student student = new Student("Fulan",String.valueOf(i+100),"FT","INFORMATIKA","email@gmail.com");
             Admin.getStudentData().add(student);
             if(i%2 == 0 && i > 4) {
                 Admin.updateDate();
