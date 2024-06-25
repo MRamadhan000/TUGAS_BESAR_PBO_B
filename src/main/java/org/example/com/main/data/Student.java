@@ -41,7 +41,7 @@ public class Student extends User implements IMenu {
         this.faculty = faculty;
         this.programStudi = programStudi;
         this.email = email;
-        this.consultingClass = "";
+        this.consultingClass = "none";
     }
 
     public Student(String name, String NIM, String faculty, String programStudi,String email, String consultingClass){

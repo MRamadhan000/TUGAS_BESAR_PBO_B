@@ -8,19 +8,21 @@ public class PropertyStudent {
     private final SimpleStringProperty faculty;
     private final SimpleStringProperty programStudi;
     private final SimpleStringProperty email;
+    private final SimpleStringProperty consultingClass;
 
-    public PropertyStudent(String name, String nim, String faculty, String programStudi,String email) {
+    public PropertyStudent(String name, String nim, String faculty, String programStudi,String email, String consultingClass) {
         this.name = new SimpleStringProperty(name);
         this.nim = new SimpleStringProperty(nim);
         this.faculty = new SimpleStringProperty(faculty);
         this.programStudi = new SimpleStringProperty(programStudi);
         this.email = new SimpleStringProperty(email);
+        this.consultingClass = new SimpleStringProperty(consultingClass);
     }
 
     public static ArrayList<PropertyStudent> studentToProperty(ArrayList<Student> arr) {
         ArrayList<PropertyStudent> temp = new ArrayList<>();
         for (Student student : arr) {
-            PropertyStudent obj = new PropertyStudent(student.getName(), student.getNIM(), student.getFaculty(), student.getProgramStudi(),student.getEmail());
+            PropertyStudent obj = new PropertyStudent(student.getName(), student.getNIM(), student.getFaculty(), student.getProgramStudi(),student.getEmail(), student.getConsultingClass());
             temp.add(obj);
         }
         return temp;
@@ -84,5 +86,17 @@ public class PropertyStudent {
 
     public void setEmail(String email) {
         this.email.set(email);
+    }
+
+    public String getConsultingClass() {
+        return consultingClass.get();
+    }
+
+    public SimpleStringProperty consultingClassProperty() {
+        return consultingClass;
+    }
+
+    public void setConsultingClass(String consultingClass) {
+        this.consultingClass.set(consultingClass);
     }
 }

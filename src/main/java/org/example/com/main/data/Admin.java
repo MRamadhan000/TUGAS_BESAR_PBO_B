@@ -425,9 +425,11 @@ public class Admin extends User implements IMenu {
     }
 
 
-    public static void addTempStudent(Admin admin,String name,String NIM, String faculty, String program,String email) {
-        admin.addStudent(name,NIM,faculty,program,email);
+    public void addTempStudent(String NIM, Student student) {
+        this.addStudent(NIM,student);
     }
+
+
 
     public static Student checkNIM(String name, String NIM, String faculty, String program, String email) {
         for (Student x : Admin.getStudentData()) {
@@ -649,12 +651,19 @@ public class Admin extends User implements IMenu {
             Student student = checkNIM(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText());
             if (inputName.getText().isEmpty() || inputNIM.getText().isEmpty() || facultyComboBox.getValue().isEmpty()||programComboBox.getValue().isEmpty() || inputEmail.getText().isEmpty())
                 UIManager.showError(actionTarget,"PLEASE FILL ALL BLANKS");
-            else if(inputNIM.getText().length() == 15)
+            else if(inputNIM.getText().length() != 15)
                 UIManager.showError(actionTarget,"NIM MUST 15 CHARACTERS");
             else if(student == null)
                 UIManager.showError(actionTarget,"NIM SAME");
             else {
-                addTempStudent(this,inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText());
+                String batch = inputNIM.getText().substring(0, 4);
+                if (batch.equals("2023")){
+                    Student newStudent = new Student(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText(),"Selasa");
+                    addTempStudent(inputNIM.getText(),newStudent);
+                }else{
+                    Student newStudent = new Student(inputName.getText(),inputNIM.getText(),facultyComboBox.getValue(),programComboBox.getValue(),inputEmail.getText());
+                    addTempStudent(inputNIM.getText(),newStudent);
+                }
                 UIManager.showSuccess(actionTarget,"STUDENT ADDED SUCCESSFULY");
             }
         });
@@ -671,6 +680,7 @@ public class Admin extends User implements IMenu {
         TableColumn<Student,String> facultyCol = new TableColumn<>("Faculty");
         TableColumn<Student,String> prodiCol = new TableColumn<>("Program Studi");
         TableColumn<Student,String> emailCol = new TableColumn<>("Email");
+        TableColumn<Student,String> consultingClassCol = new TableColumn<>("Consulting Class");
 
 
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -678,7 +688,9 @@ public class Admin extends User implements IMenu {
         facultyCol.setCellValueFactory(new PropertyValueFactory<>("faculty") );
         prodiCol.setCellValueFactory(new PropertyValueFactory<>("programStudi"));
         emailCol.setCellValueFactory(new PropertyValueFactory<>("email"));
-        tableStudent.getColumns().addAll(nameCol,nimCol,facultyCol,prodiCol,emailCol);
+        consultingClassCol.setCellValueFactory(new PropertyValueFactory<>("consultingClass"));
+
+        tableStudent.getColumns().addAll(nameCol,nimCol,facultyCol,prodiCol,emailCol,consultingClassCol);
 
         Button backBtn = new Button("Back");
         GridPane gridPane = new GridPane();
@@ -991,9 +1003,9 @@ public class Admin extends User implements IMenu {
         stage.show();
     }
 
-    public void addStudent(String name,String NIM, String faculy, String program,String email){
+    public void addStudent(String NIM, Student student){
         //Student student = new Student(name,NIM,faculy,program,program,email);
-        Student student = new Student(name,NIM,faculy,program,email);
+        //Student student = new Student(name,NIM,faculy,program,email);
         studentData.add(student);
         studentList.add(NIM);
     }
