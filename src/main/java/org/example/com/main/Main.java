@@ -22,13 +22,13 @@ public class Main extends Application{
         Admin.firstDate();
         Student.setJadwalkonsultasi();
         addUser2();
-
         launch(args);
     }
 
     public static void addUser2(){
         Student student1 = new Student("AGUS",String.valueOf(2023),"FT","INFORMATIKA","agus@gmail.com","senin");
         Admin.getStudentData().add(student1);
+        System.out.println("ini adalah link angkatan 2023"+student1.getLink());
         Student student2= new Student("Mehmed",String.valueOf(2022),"FT","INFORMATIKA","mehmed@gmail.com");
         Admin.getStudentData().add(student2);
 

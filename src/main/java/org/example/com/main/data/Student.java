@@ -25,7 +25,7 @@ import java.util.*;
 
 
 public class Student extends User implements IMenu {
-    private String name,faculty,programStudi,NIM,consultingClass,email;
+    private String name,faculty,programStudi,NIM,consultingClass,email,link;
     private ArrayList<Book> borrowedBooks= new ArrayList<>();
     private static ArrayList<Book> studentBook = new ArrayList<>();
     private static String[][] tempBook = new String[10][10];
@@ -42,6 +42,7 @@ public class Student extends User implements IMenu {
         this.programStudi = programStudi;
         this.email = email;
         this.consultingClass = "none";
+
     }
 
     public Student(String name, String NIM, String faculty, String programStudi,String email, String consultingClass){
@@ -51,6 +52,15 @@ public class Student extends User implements IMenu {
         this.programStudi = programStudi;
         this.email = email;
         this.consultingClass = consultingClass;
+        this.setLink("link1");
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 
     public static void logIn(Stage stage){
@@ -214,7 +224,7 @@ public class Student extends User implements IMenu {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Pendaftaran Ditolak");
                 alert.setHeaderText(null);
-                alert.setContentText("jadwal kelas anda " + this.getConsultingClass()+this);
+                alert.setContentText("jadwal kelas anda " + this.getConsultingClass()+" " +this.getLink());
                 alert.showAndWait();
 
 
@@ -265,6 +275,7 @@ public class Student extends User implements IMenu {
             if (isvalid != null) {
                 alert.setContentText("Jadwal Konsultasi: " + isvalid);
                 this.setConsultingClass(fieldNIM.getText());
+                this.setLink(isvalid);
             } else {
                 alert.setContentText("Jadwal tidak tersedia atau kuotpenuha .");
             }
@@ -283,7 +294,7 @@ public class Student extends User implements IMenu {
 
     public static void setJadwalkonsultasi() {
         String[] hari = {"senin,3", "selasa,3", "rabu,2", "kamis,1", "jum'at,3", "jum'at,2"};
-        String[] link = {"link1", "link2", "link3", "link4", "link5", "link6"};
+        String[] link = {"https://bit.ly/konsultasiperpus1", "https://bit.ly/konsultasiperpus2", "https://bit.ly/Konsultasiperpus3", "https://bit.ly/konsultasiperpus1", "https://bit.ly/konsultasiperpus2", "https://bit.ly/Konsultasiperpus3"};
 
         for (int i = 0; i < 6; i++) {
 
