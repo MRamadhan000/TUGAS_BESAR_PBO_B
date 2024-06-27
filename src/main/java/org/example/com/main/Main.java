@@ -16,7 +16,6 @@ import org.example.com.main.data.Admin;
 import org.example.com.main.data.Student;
 import org.example.com.main.data.User;
 import java.io.IOException;
-
 public class Main extends Application{
     public static void main(String[] args) {
         Admin.firstDate();
@@ -24,7 +23,6 @@ public class Main extends Application{
         addUser2();
         launch(args);
     }
-
     public static void addUser2(){
         Student student1 = new Student("AGUS",String.valueOf(2023),"FT","INFORMATIKA","agus@gmail.com","senin");
         Admin.getStudentData().add(student1);
@@ -97,7 +95,7 @@ public class Main extends Application{
         grid.setHgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        // Add image at the top
+        //Add image at the top
         ImageView imageView = new ImageView(new Image(Main.class.getResource("/Image/logos.jpg").toString()));
         imageView.setFitWidth(200); // Set desired width
         imageView.setPreserveRatio(true); // Preserve the aspect ratio
@@ -150,55 +148,5 @@ public class Main extends Application{
         stage.setTitle("MENU");
         stage.setScene(scene);
         stage.show();
-//        GridPane grid = new GridPane();
-//        grid.setAlignment(Pos.CENTER);
-//        grid.setVgap(10);
-//        grid.setHgap(10);
-//        grid.setPadding(new Insets(25,25,25,25));
-//
-//        VBox hboxBtn = new VBox(10);
-//        Button btnLogAdmin = new Button("Login As Admin");
-//        Button btnLogStudent = new Button("Login As Student");
-//        Button btnExit = new Button("EXIT");
-//
-//        btnLogAdmin.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
-//        btnLogStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
-//        btnExit.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
-//
-//        hboxBtn.setAlignment(Pos.CENTER);
-//        hboxBtn.getChildren().addAll(btnLogAdmin,btnLogStudent,btnExit);
-//        grid.add(hboxBtn,1,3);
-//
-//        final Text actionTarget = new Text();
-//        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-//        grid.add(actionTarget, 1, 6);
-//
-//        btnLogAdmin.setOnAction(actionEvent -> {
-//            try {
-//                Admin.logIn(stage);
-//            } catch (Exception e) {
-//                actionTarget.setText("An error occurred: " + e.getMessage());
-//            }
-//        });
-//
-//        btnLogStudent.setOnAction(actionEvent -> {
-//            try {
-//                Student.logIn(stage);
-//            }catch (Exception e){
-//                actionTarget.setText("An error occured " + e.getMessage());
-//            }
-//        });
-//
-//        btnExit.setOnAction(actionEvent -> {
-//            try {
-//                stage.close();
-//            }catch (Exception e){
-//                actionTarget.setText("An error occured " + e.getMessage());
-//            };
-//        });
-//        Scene scene = new Scene(grid, UIManager.getWidth(),UIManager.getHeight());
-//        stage.setTitle("MENU");
-//        stage.setScene(scene);
-//        stage.show();
     }
 }

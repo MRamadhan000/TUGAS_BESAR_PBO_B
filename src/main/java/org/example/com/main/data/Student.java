@@ -33,7 +33,6 @@ public class Student extends User implements IMenu {
     private static ArrayList<String> favoriteBooks = new ArrayList<>();
     private static String arrhari[] = new String[6];
     private static String arrlink[] = new String[6];
-    //private static String[][] jadwal = new ArrayList<>;
 
     public Student(String name, String NIM, String faculty, String programStudi,String email){
         this.name = name;
@@ -637,7 +636,7 @@ public class Student extends User implements IMenu {
 
         btnSave.setOnAction(actionEvent -> {
             System.out.println("masuk");
-            addTempBook(this,numberBorroewd,tempBook);
+            addTempBook(numberBorroewd,tempBook);
             UIManager.showSuccess(actionTarget,"BOO HAS BEEN SAVE");
             logOut(stage);
         });
@@ -653,12 +652,13 @@ public class Student extends User implements IMenu {
         stage.show();
     }
 
-    public static void addTempBook(Student student,int numberBorrowed, String[][] arr) {
+    public void addTempBook(int numberBorrowed, String[][] arr) {
         System.out.println("masuk1");
         for (int i = 0; i < numberBorrowed; i++) {
-            student.choiceBook(arr[i][0], Integer.parseInt(arr[i][1]));
+            this.choiceBook(arr[i][0], Integer.parseInt(arr[i][1]));
             //FORMAT TIME = nim,bookId,currentTime,newTime
-            Admin.addToListBorrowed(student.formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]) ));
+            //Admin.addToListBorrowed(this.formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]),this.getFaculty(),this.getProgramStudi(),th));
+            Admin.addToListBorrowed(formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]) ));
         }
     }
 

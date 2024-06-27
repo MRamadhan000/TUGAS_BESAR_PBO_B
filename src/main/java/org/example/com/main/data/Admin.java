@@ -1,4 +1,5 @@
 package org.example.com.main.data;
+import com.itextpdf.text.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -28,13 +29,23 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
+import com.itextpdf.text.pdf.PdfWriter;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Properties;
 
 public class Admin extends User implements IMenu {
     private TableView tableStudent = new TableView<>();
@@ -47,11 +58,6 @@ public class Admin extends User implements IMenu {
     private static final ArrayList<String> studentList = new ArrayList<>();
     private static ArrayList<String> visitorList = new ArrayList<>(); // date time NIM
     private static ArrayList<String> listBorrowedBook = new ArrayList<>();
-    private static String[][] adminAccount = new String[1][1];
-
-    public static void setAdminAccount(){
-        String email,pass;
-    }
 
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
@@ -125,6 +131,7 @@ public class Admin extends User implements IMenu {
         }
     }
 
+    //MENGECEK APAKAH ADA SISA DURASI 3 HARI
     public void checkDurationBookBorrowed(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
         for (String student : listBorrowedBook){
@@ -138,15 +145,23 @@ public class Admin extends User implements IMenu {
         }
     }
 
+    //MENCARI AKUN DAN KIRIM EMAIL
+
     public void loadAccount(String NIM, String bookId,String deadline){
         for (Student student : studentData){
             if (student.getNIM().equals(NIM)){
-                sendEmail(setEmailMessage(student.getNIM(),student.getFaculty(),student.getProgramStudi(),bookId,deadline));
+                String filePath = "src/main/java/org/example/com/main/attachment/letter.pdf";
+                String message = setEmailMessage(student.getNIM(),student.getFaculty(),student.getProgramStudi(),bookId,deadline);
+                try {
+                    createPdf(filePath,deadline,student.getName(),student.getNIM(),student.getProgramStudi(),bookId);
+                }catch (Exception e){
+                    System.err.println(e.getMessage());
+                }
+                sendEmail(message,filePath);
             }
         }
     }
-
-    public void sendEmail(String message){
+    public static void sendEmail(String message, String filePath) {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com"); // SMTP Host
         props.put("mail.smtp.port", "587"); // TLS Port
@@ -158,10 +173,11 @@ public class Admin extends User implements IMenu {
 
         // Create a Session with the specified properties
         Session session = Session.getInstance(props, new javax.mail.Authenticator() {
-            protected javax.mail.PasswordAuthentication getPasswordAuthentication() {
-                return new javax.mail.PasswordAuthentication(mainEmail, password);
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(mainEmail, password);
             }
         });
+
         // Email details
         String toEmail = "";
         String subject = "PERPUSTAKAAN";
@@ -177,24 +193,104 @@ public class Admin extends User implements IMenu {
             msg.setFrom(new InternetAddress(mainEmail, "NoReply-JD"));
             msg.setReplyTo(InternetAddress.parse(mainEmail, false));
             msg.setSubject(subject, "UTF-8");
-            msg.setText(body, "UTF-8");
             msg.setSentDate(new Date());
             msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail, false));
-            System.out.println("Message is ready");
+
+            // Create the message part
+            MimeBodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setText(body);
+
+            // Create a multipart message for attachment
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+
+            // Second part is the attachment
+            messageBodyPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(filePath);
+            messageBodyPart.setDataHandler(new DataHandler(source));
+            messageBodyPart.setFileName("PemberitahuanPemainjaman.pdf");
+            multipart.addBodyPart(messageBodyPart);
+
+            // Send the complete message parts
+            msg.setContent(multipart);
+
+            // Send message
             Transport.send(msg);
-            System.out.println("Email Sent Successfully!!");
-        } catch (Exception e) {
+            System.out.println("Email Sent Successfully with attachment!!");
+        } catch (MessagingException e) {
             e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public void createPdf(String dest, String tanggal, String namaPeminjam, String nim, String jurusan, String bookId) throws DocumentException, IOException {
+        if (!dest.toLowerCase().endsWith(".pdf")) {
+            dest += ".pdf";
+        }
+        Document document = new Document();
+        PdfWriter.getInstance(document, new FileOutputStream(dest));
+        document.open();
+
+        // Add Logo
+        Image logo = Image.getInstance("src/main/resources/Image/logo_umm_attachment.jpg");
+        logo.scaleToFit(150, 150); // Sesuaikan ukuran logo sesuai kebutuhan
+        float logoX = (PageSize.A4.getWidth() - logo.getScaledWidth()) / 2;
+        float logoY = PageSize.A4.getHeight() - logo.getScaledHeight() - 50; // Sesuaikan posisi logo sesuai kebutuhan
+        logo.setAbsolutePosition(logoX, logoY);
+        document.add(logo);
+
+        // Add blank lines
+        document.add(new Paragraph("\n\n\n\n\n\n\n"));
+
+        // Set Font
+        com.itextpdf.text.Font fontJudul = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLACK);
+        com.itextpdf.text.Font fontIsi = FontFactory.getFont(FontFactory.TIMES_ROMAN, 12, BaseColor.BLACK);
+
+        // Judul Surat
+        Paragraph judul = new Paragraph("Pemberitahuan Buku Akan Habis Tenggang", fontJudul);
+        judul.setAlignment(Element.ALIGN_CENTER);
+        document.add(judul);
+
+        // Tanggal
+        Paragraph parTanggal = new Paragraph("Tanggal: " + tanggal, fontIsi);
+        parTanggal.setAlignment(Element.ALIGN_RIGHT);
+        document.add(parTanggal);
+
+        // Alamat Institusi
+        Paragraph parInstitusi = new Paragraph("PERPUSTKAAN UNIVERSITAS MUHAMMADIYAH MALANG" + "\n" + "Jl. Raya Tlogomas No. 246 Malang - Jawa Timur 65144", fontIsi);
+        parInstitusi.setAlignment(Element.ALIGN_LEFT);
+        document.add(parInstitusi);
+
+        // Spasi
+        document.add(new Paragraph("\n"));
+
+        // Isi Surat
+        Paragraph isiSurat = new Paragraph();
+        isiSurat.add(new Phrase("Kepada,\n\n", fontIsi));
+        isiSurat.add(new Phrase(namaPeminjam + "\n", fontIsi));
+        isiSurat.add(new Phrase("NIM: " + nim + "\n", fontIsi));
+        isiSurat.add(new Phrase("Jurusan: " + jurusan + "\n", fontIsi));
+        isiSurat.add(new Phrase("Book ID: " + bookId + "\n\n", fontIsi));
+        isiSurat.add(new Phrase("Dengan Hormat,\n\n", fontIsi));
+        isiSurat.add(new Phrase("Kami menginformasikan bahwa buku yang Anda pinjam dengan detail sebagai berikut:\n\n", fontIsi));
+        isiSurat.add(new Phrase("Nama Peminjam: " + namaPeminjam + "\n", fontIsi));
+        isiSurat.add(new Phrase("NIM: " + nim + "\n", fontIsi));
+        isiSurat.add(new Phrase("Jurusan: " + jurusan + "\n", fontIsi));
+        isiSurat.add(new Phrase("Book ID: " + bookId + "\n", fontIsi));
+        isiSurat.add(new Phrase("akan segera mencapai batas waktu tenggang peminjaman. Kami mohon untuk segera mengembalikan buku tersebut ke perpustakaan pada waktu yang telah ditentukan.\n\n", fontIsi));
+        isiSurat.add(new Phrase("Terima kasih atas perhatian dan kerjasamanya.\n\n", fontIsi));
+        isiSurat.add(new Phrase("Hormat kami,\n\n", fontIsi));
+        isiSurat.add(new Phrase("[AGUS]\n", fontIsi));
+        isiSurat.add(new Phrase("[Ketua Perpustakaan UMM]\n", fontIsi));
+        document.add(isiSurat);
+        document.close();
+        System.out.println("PDF Created Successfully: " + dest);
     }
 
     public static String setEmailMessage(String NIM,String faculty,String programStudi,String bookId, String deadline){
         return String.format(
-                "Peringatan:\n" +
-                        "Mahasiswa dengan NIM %s dari Fakultas %s, Program Studi %s,\n" +
-                        "peminjaman buku dengan ID %s akan habis pada tanggal %s.\n" +
-                        "Harap segera mengembalikan buku tersebut sebelum atau pada tanggal yang ditentukan untuk menghindari denda keterlambatan.",
-                NIM, faculty, programStudi, bookId, deadline
+                "Peringatan:\n" + "Mahasiswa dengan NIM %s dari Fakultas %s, Program Studi %s,\n" + "peminjaman buku dengan ID %s akan habis pada tanggal %s.\n" + "Harap segera mengembalikan buku tersebut sebelum atau pada tanggal yang ditentukan untuk menghindari denda keterlambatan.", NIM, faculty, programStudi, bookId, deadline
         );
     }
 
