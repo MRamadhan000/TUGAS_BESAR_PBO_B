@@ -566,12 +566,14 @@ public class Student extends User implements IMenu {
                 UIManager.showError(actionTarget, "Book with id " + fieldId.getText() + " is not found");
                 return;
             }
-
+            if(book.getStock()< 1){
+                UIManager.showError(actionTarget,"Book with id " + fieldId.getText() + " is empty");
+                return;
+            }
             if (isBookAvailable(this, fieldId.getText())) {
                 UIManager.showError(actionTarget, "BOOK HAS BEEN BORROWED");
                 return;
             }
-
             try {
                 if (Integer.parseInt(fieldDuration.getText()) >= 15) {
                     UIManager.showError(actionTarget, "DURATION MUST BE LOWER THAN 15");
