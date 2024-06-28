@@ -5,6 +5,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -136,10 +137,10 @@ public class Student extends User implements IMenu {
         Button btnOut = new Button("Pinjam Buku atau Logout");
         Button btnDisplayFavorite = new Button("Tampilkan Rekomendasi Buku");
         Button btnUpBook = new Button("Update Buku");
-        Button btnkonsul = new Button("Daftar Konsultasi");
-        Button btntampiljad = new Button("Tampilkan Jadwal");
+        Button btnDaftarKonsul = new Button("Daftar Konsultasi");
+        Button btntampilJadwalKonsul = new Button("Tampilkan Jadwal");
         hBBtn.setAlignment(Pos.CENTER);
-        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnkonsul,btntampiljad);
+        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnDaftarKonsul,btntampilJadwalKonsul);
         grid.add(hBBtn,1,1);
 
         btnBukuT.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
@@ -148,8 +149,8 @@ public class Student extends User implements IMenu {
         btnOut.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
         btnDisplayFavorite.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
         btnUpBook.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
-        btnkonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
-        btntampiljad.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btnDaftarKonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+        btntampilJadwalKonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -189,31 +190,29 @@ public class Student extends User implements IMenu {
             displayFavoriteBook(stage);
         });
 
-
-        btnkonsul.setOnAction(actionEvent -> {
-            String nim = this.getNIM(); // Mengambil NIM
-            String tahunStr = nim.substring(0, 4); // Mengambil 4 karakter pertama
-            int tahun = Integer.parseInt(tahunStr); // Mengubah string menjadi integer
-
-            if (tahun == 2023) {
-                // Tampilkan pesan bahwa pendaftaran tidak diperbolehkan
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Pendaftaran Ditolak");
-                alert.setHeaderText(null);
-                alert.setContentText("Anda tidak dapat mendaftar karena NIM Anda adalah tahun 2023.");
-                alert.showAndWait();
-            } else  {
-                // Tampilkan jadwal=
-                Displayjadwal(stage);
-
-
+        btnDaftarKonsul.setOnAction(actionEvent -> {
+            try {
+                String tahunStr = this.getNIM().substring(0, 4);
+                // Mengambil 4 karakter pertama
+                int tahun = Integer.parseInt(tahunStr); // Mengubah string menjadi integer
+                if (tahun == 2023) {
+                    // Tampilkan pesan bahwa pendaftaran tidak diperbolehkan
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Pendaftaran Ditolak");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Anda tidak dapat mendaftar karena NIM Anda adalah tahun 2023.");
+                    alert.showAndWait();
+                } else  {
+                    // Tampilkan jadwal=
+                    displayJadwalKonsultasi(stage);
+                }
+            }catch (IndexOutOfBoundsException e){
+                System.err.println(e.getMessage());
             }
         });
 
-        btntampiljad.setOnAction(actionEvent -> {
-
+        btntampilJadwalKonsul.setOnAction(actionEvent -> {
             if (this.getConsultingClass().equals("none")|| this.getConsultingClass().equals("") ){
-
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Pendaftaran Ditolak");
                 alert.setHeaderText(null);
@@ -225,58 +224,88 @@ public class Student extends User implements IMenu {
                 alert.setHeaderText(null);
                 alert.setContentText("jadwal kelas anda " + this.getConsultingClass()+" " +this.getLink());
                 alert.showAndWait();
-
-
             }
         });
-
-
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
         stage.setTitle("STUDENT MENU");
         stage.setScene(scene);
         stage.show();
     }
-
-    public void Displayjadwal(Stage stage) {
+    public void displayJadwalKonsultasi(Stage stage) {
         UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10); // Jarak horizontal antar kolom
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
+
+        String[] targetDay = new String[6];
+        String[] targetKouta = new String[6];
+        for (int i = 0; i < 6; i++){
+            String[] split = arrhari[i].split(",");
+            targetDay[i] = split[0];
+            targetKouta[i] = split[1];
+        }
+
+        // Convert arrays to ObservableList
+        ObservableList<String> dayList = FXCollections.observableArrayList(targetDay);
+        ObservableList<String> koutaList = FXCollections.observableArrayList(targetKouta);
+        ObservableList<String> headerDay = FXCollections.observableArrayList("DAY");
+        ObservableList<String> headerkouta = FXCollections.observableArrayList("KOUTA");
+        // Create ListViews
+        ListView<String> dayListView = new ListView<>(dayList);
+        ListView<String> linkListView = new ListView<>(koutaList);
+        ListView<String> headerDayListView = new ListView<>(headerDay);
+        ListView<String> headerKoutaListView = new ListView<>(headerkouta);
+
+        // Set ListView sizes to fit content
+        dayListView.setPrefHeight(dayList.size() * 24 + 2);
+        linkListView.setPrefHeight(koutaList.size() * 24 + 2);
+        headerDayListView.setPrefHeight(30);
+        headerKoutaListView.setPrefHeight(30);
+
+        // Create a layout
+        HBox hboxHeader = new HBox(10); // spacing between elements
+        hboxHeader.getChildren().addAll(headerDayListView,headerKoutaListView);
+        grid.add(hboxHeader,1,0);
+        // Create a layout
+        HBox hbox = new HBox(10); // spacing between elements
+        hbox.getChildren().addAll(dayListView, linkListView);
+        grid.add(hbox,1,1);
+
         Text sceneTitle = new Text("Inputkan hari konsultasi");
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
+        grid.add(sceneTitle, 0, 2, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
-        Label userName = new Label("Hari :");
-        grid.add(userName, 0, 1); // Kolom 0, Baris 1
+        Label hari = new Label("Hari :");
+        grid.add(hari, 0, 3); // Kolom 0, Baris 1
 
-        TextField fieldNIM = new TextField();
-        fieldNIM.setPromptText("hari");
-        grid.add(fieldNIM, 1, 1); // Kolom 1, Baris 1
+        TextField fieldHari = new TextField();
+        fieldHari.setPromptText("hari");
+        grid.add(fieldHari, 1, 4); // Kolom 1, Baris 1
 
         Button btnSignIn = new Button("Daftar");
         Button btnBack = new Button("BACK");
         HBox hBBtn = new HBox(10);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack, btnSignIn);
-        grid.add(hBBtn, 1, 2);
+        grid.add(hBBtn, 1, 5);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-        grid.add(actionTarget, 1, 3);
+        grid.add(actionTarget, 1, 6);
 
         btnSignIn.setOnAction(actionEvent -> {
-            String isvalid = kurangkouta(fieldNIM.getText());
+            String isvalid = kurangKouta(fieldHari.getText());
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Hasil Konsultasi");
             alert.setHeaderText(null);
             if (isvalid != null) {
                 alert.setContentText("Jadwal Konsultasi: " + isvalid);
-                this.setConsultingClass(fieldNIM.getText());
+                this.setConsultingClass(fieldHari.getText());
                 this.setLink(isvalid);
             } else {
-                alert.setContentText("Jadwal tidak tersedia atau kuotpenuha .");
+                alert.setContentText("Jadwal Kelas Tidak Tersedia atau Anda Telah Mendaftar Kelas");
             }
             alert.showAndWait();
         });
@@ -290,46 +319,31 @@ public class Student extends User implements IMenu {
         stage.setScene(scene);
         stage.show();
     }
-
     public static void setJadwalkonsultasi() {
-        String[] hari = {"senin,3", "selasa,3", "rabu,2", "kamis,1", "jum'at,3", "jum'at,2"};
+        String[] hari = {"Senin,3", "Selasa,3", "Rabu,2", "Kamis,3", "Jum'at,3", "Sabtu,3"};
         String[] link = {"https://bit.ly/konsultasiperpus1", "https://bit.ly/konsultasiperpus2", "https://bit.ly/Konsultasiperpus3", "https://bit.ly/konsultasiperpus1", "https://bit.ly/konsultasiperpus2", "https://bit.ly/Konsultasiperpus3"};
-
         for (int i = 0; i < 6; i++) {
-
             arrhari [i] = hari[i];
             arrlink [i] = link[i];
         }
     }
 
-    public void  checkjadwal() {
+    public String kurangKouta (String targetDay){
         for (int i = 0; i < 6; i++) {
             String[] splitHari = arrhari[i].split(",");
             String hari = splitHari[0];
             int kouta = Integer.parseInt(splitHari[1]);
-            String link = arrlink[i];
-            System.out.println(hari + kouta);
-            System.out.println(link);
-        }
-    }
-
-    public String kurangkouta (String kurangkouta){
-        for (int i = 0; i < 6; i++) {
-            String[] splitHari = arrhari[i].split(",");
-            String hari = splitHari[0];
-            int kouta = Integer.parseInt(splitHari[1]);
-
-            if (hari.equalsIgnoreCase(kurangkouta)) {
+            if (hari.equalsIgnoreCase(targetDay) && this.getConsultingClass().equals("none")) {
                 if (kouta > 0) {
                     kouta--;
-                }
-                arrhari[i] = hari + "," + kouta;
-                System.out.println("Kuota untuk hari " + hari + " telah dikurangi. Kuota sekarang: " + kouta);
-                return arrlink[i];
-
+                    arrhari[i] = hari + "," + kouta;
+                    System.out.println("Kuota untuk hari " + hari + " telah dikurangi. Kuota sekarang: " + kouta);
+                    return arrlink[i];
+                }else
+                    return null;
             }
         }
-        System.out.println("Hari " + kurangkouta + " tidak ditemukan.");
+        System.out.println("Hari " + targetDay + " tidak ditemukan.");
         return null;
     }
 
