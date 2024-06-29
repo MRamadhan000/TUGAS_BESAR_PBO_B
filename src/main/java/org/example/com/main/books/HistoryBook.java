@@ -5,7 +5,6 @@ public class HistoryBook extends Book{
         super(bookId,title,author,stock);
         super.setCategory(category);
     }
-
     @Override
     public String getCategory() {
         return category;

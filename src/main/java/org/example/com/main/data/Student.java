@@ -5,8 +5,9 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.MapValueFactory;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,9 +29,6 @@ import java.util.*;
 public class Student extends User implements IMenu {
     private String name,faculty,programStudi,NIM,consultingClass,email,link;
     private ArrayList<Book> borrowedBooks= new ArrayList<>();
-    private static ArrayList<Book> studentBook = new ArrayList<>();
-    private static String[][] tempBook = new String[10][10];
-    private static int numberBorroewd = 0;
     private static ArrayList<String> favoriteBooks = new ArrayList<>();
     private static String arrhari[] = new String[6];
     private static String arrlink[] = new String[6];
@@ -100,7 +98,6 @@ public class Student extends User implements IMenu {
                 student = searchStudent(fieldNIM.getText());
                 if(student != null) {
                     student.addVisitor();
-                    Student.setStudentBook();
                     student.menu(stage);
                 }else
                     UIManager.showError(actionTarget,"NIM not found");
@@ -134,13 +131,13 @@ public class Student extends User implements IMenu {
         Button btnBukuT = new Button("Buku Terpinjam");
         Button btnPinjamB = new Button("Pinjam Buku");
         Button btnKembalikanB = new Button("Kembalikan Buku");
-        Button btnOut = new Button("Pinjam Buku atau Logout");
+        Button btnOut = new Button("Logout");
         Button btnDisplayFavorite = new Button("Tampilkan Rekomendasi Buku");
         Button btnUpBook = new Button("Update Buku");
         Button btnDaftarKonsul = new Button("Daftar Konsultasi");
         Button btntampilJadwalKonsul = new Button("Tampilkan Jadwal");
         hBBtn.setAlignment(Pos.CENTER);
-        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnOut,btnDisplayFavorite,btnUpBook,btnDaftarKonsul,btntampilJadwalKonsul);
+        hBBtn.getChildren().addAll(btnBukuT,btnPinjamB,btnKembalikanB,btnDisplayFavorite,btnUpBook,btnDaftarKonsul,btntampilJadwalKonsul,btnOut);
         grid.add(hBBtn,1,1);
 
         btnBukuT.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
@@ -179,11 +176,7 @@ public class Student extends User implements IMenu {
         });
 
         btnOut.setOnAction(actionEvent -> {
-            if (numberBorroewd > 0){
-                keepBooks(stage);
-            }else {
-                logOut(stage);
-            }
+            logOut(stage);
         });
 
         btnDisplayFavorite.setOnAction(actionEvent -> {
@@ -231,6 +224,40 @@ public class Student extends User implements IMenu {
         stage.setScene(scene);
         stage.show();
     }
+    public void borrowedEmptyBook(Book book, String duration, String timeWait,Stage stage) {
+        // Membuat dialog kustom
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Borrow Book Confirmation");
+
+        // Menambahkan tombol Yes dan No
+        ButtonType yesButtonType = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
+        ButtonType noButtonType = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(yesButtonType, noButtonType);
+
+        // Membuat label dan text field untuk jumlah hari peminjaman
+        Label label = new Label("Number of days to borrow: " + duration);
+
+        // Mengatur layout dialog
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        grid.add(new Label("Book with id " + book.getBookId() + " is empty"), 0, 0);
+        grid.add(new Label("Do you want to borrow this book once stock is available maybe after " + timeWait + "?"), 0, 1);
+        grid.add(label, 0, 2);
+
+        dialog.getDialogPane().setContent(grid);
+
+        // Menampilkan dialog dan menunggu respons pengguna
+        Optional<ButtonType> result = dialog.showAndWait();
+
+        if (result.isPresent() && result.get() == yesButtonType) {
+            String format = this.getNIM() + "," + book.getBookId() + "," + duration;
+            Admin.addToLoadBook(format);
+        }
+    }
+
     public void displayJadwalKonsultasi(Stage stage) {
         UIManager.setPreviousLayout(stage.getScene()); // SAVE PREVIOUS SCENE
         GridPane grid = new GridPane();
@@ -451,7 +478,6 @@ public class Student extends User implements IMenu {
         }
     }
 
-
     @Override
     public void logOut(Stage stage) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -466,7 +492,7 @@ public class Student extends User implements IMenu {
         if (result.isPresent() && result.get() == yesButton){
             stage.close();
             try {
-                clearArray();
+                //clearArray();
                 Main.menu(stage);
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -525,7 +551,7 @@ public class Student extends User implements IMenu {
         sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
-        TableView<PropertyBook> table = super.createTableView(getStudentBook());
+        TableView<PropertyBook> table = super.createTableView(User.getBookList());
         VBox vbox = new VBox();
         vbox.setSpacing(5);
         vbox.setPadding(new Insets(10, 0, 0, 10));
@@ -560,17 +586,12 @@ public class Student extends User implements IMenu {
                 UIManager.showError(actionTarget, "FIELD CANNOT BE EMPTY");
                 return;
             }
-
             Book book = this.searchBookAll(fieldId.getText());
             if (book == null) {
                 UIManager.showError(actionTarget, "Book with id " + fieldId.getText() + " is not found");
                 return;
             }
-            if(book.getStock()< 1){
-                UIManager.showError(actionTarget,"Book with id " + fieldId.getText() + " is empty");
-                return;
-            }
-            if (isBookAvailable(this, fieldId.getText())) {
+            if (isBookBorrowed(fieldId.getText())) {
                 UIManager.showError(actionTarget, "BOOK HAS BEEN BORROWED");
                 return;
             }
@@ -579,11 +600,31 @@ public class Student extends User implements IMenu {
                     UIManager.showError(actionTarget, "DURATION MUST BE LOWER THAN 15");
                     return;
                 }
-                tempBook[numberBorroewd][0] = book.getBookId();
-                tempBook[numberBorroewd][1] = fieldDuration.getText();
-                numberBorroewd++;
-                book.setStock(book.getStock() - 1);
-                UIManager.showSuccess(actionTarget, "BOOK ADDED SUCCESSFULLY");
+            }catch (NumberFormatException e){
+                System.err.println(e.getMessage());
+            }
+            if(book.getStock()< 1){
+                if (!Admin.isHaveBookLoad(fieldId.getText()))
+                    borrowedEmptyBook(book,fieldDuration.getText(),Admin.getWaitBorrowedBook(fieldId.getText()),stage);
+                else
+                    UIManager.showError(actionTarget, "BOOK HAS BEEN BEEN ORDERED");
+                return;
+            }
+            try {
+                savedBorrowedBooks(book,Integer.parseInt(fieldDuration.getText()));
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("PEMINJAMAN BUKU");
+                alert.setHeaderText(null);
+                alert.setContentText("ANDA BERHASIL MEMINJAM BUKU DENGAN ID BUKU ADALAH " + book.getBookId()); // Ganti "12345" dengan book.getBookId()
+
+                // Mengganti ikon default dengan ikon centang
+                ImageView icon = new ImageView(new Image(Main.class.getResource("/Image/centang.png").toString()));
+                icon.setFitHeight(48); // Sesuaikan ukuran ikon
+                icon.setFitWidth(48);  // Sesuaikan ukuran ikon
+                alert.setGraphic(icon);
+                alert.showAndWait();
+                stage.close();
+                pinjamBuku(stage);
             } catch (NumberFormatException e) {
                 UIManager.showError(actionTarget, "INPUT VALID NUMBER DURATION");
             }
@@ -599,83 +640,21 @@ public class Student extends User implements IMenu {
         stage.show();
     }
 
+    public void savedBorrowedBooks(Book book, int duration){
+        Book newBook = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),1);
+        newBook.setDuration(duration);
+        newBook.setCategory(book.getCategory());
+        this.addBook(newBook);
+        book.setStock(book.getStock()-1);
+        favoriteBooks.add(newBook.getBookId());
+        Admin.addToListBorrowed(formatTimeBorrowed(book.getBookId(),duration));
+    }
+
     public String formatTimeBorrowed(String bookId,int days){
-        System.out.println("masuk3");
         LocalDate convertDate = LocalDate.parse(Admin.getDate());
         LocalDate newDate = convertDate.plusDays(days);
-        System.out.println(this.getNIM() +"," + bookId + "," + Admin.getDate() + "," + newDate.toString());
+        System.out.println("PEMINJAMAN BUKU : "+ this.getNIM() +"," + bookId + "," + Admin.getDate() + "," + newDate.toString());
         return this.getNIM() +"," + bookId + "," + Admin.getDate() + "," + newDate.toString();
-    }
-
-    public void keepBooks(Stage stage){
-        UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
-        GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setHgap(10); // Jarak horizontal antar kolom
-        grid.setVgap(10); // Jarak vertikal antar baris
-        grid.setPadding(new Insets(25, 25, 25, 25));
-        Text sceneTitle = new Text("APAKAH KAMU INGIN MEMINJAM BUKU INI");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
-        grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
-
-        ArrayList<Book> selectionArr = new ArrayList<>();
-        for (int i = 0; i < numberBorroewd; i++){
-            for (Book book : getBookList()){
-                if(book.getBookId().equals(tempBook[i][0])) {
-                    Book newBook = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),book.getStock());
-                    newBook.setCategory(book.getCategory());
-                    favoriteBooks.add(newBook.getBookId());
-                    newBook.setDuration(Integer.parseInt(tempBook[i][1]));
-                    selectionArr.add(newBook);
-                    break;
-                }
-            }
-        }
-
-        TableView<PropertyBook> table = createTableView(selectionArr);
-        VBox vbox = new VBox();
-        vbox.setSpacing(5);
-        vbox.setPadding(new Insets(10, 0, 0, 10));
-        vbox.getChildren().addAll(table);
-        grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
-
-        HBox hBBtn = new HBox(10);
-        Button btnNo = new Button("NO");
-        Button btnSave = new Button("SAVE");
-        hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
-        hBBtn.getChildren().addAll(btnNo,btnSave);
-        grid.add(hBBtn,1,2);
-
-        final Text actionTarget = new Text();
-        actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
-        grid.add(actionTarget, 1, 3);
-
-        btnSave.setOnAction(actionEvent -> {
-            System.out.println("masuk");
-            addTempBook(numberBorroewd,tempBook);
-            UIManager.showSuccess(actionTarget,"BOO HAS BEEN SAVE");
-            logOut(stage);
-        });
-
-        btnNo.setOnAction(e -> {
-            UIManager.showError(actionTarget,"BOOK DOESNT SAVED");
-            logOut(stage);
-        });
-
-        Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
-        stage.setTitle("VALIDATION MENU");
-        stage.setScene(scene);
-        stage.show();
-    }
-
-    public void addTempBook(int numberBorrowed, String[][] arr) {
-        System.out.println("masuk1");
-        for (int i = 0; i < numberBorrowed; i++) {
-            this.choiceBook(arr[i][0], Integer.parseInt(arr[i][1]));
-            //FORMAT TIME = nim,bookId,currentTime,newTime
-            //Admin.addToListBorrowed(this.formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]),this.getFaculty(),this.getProgramStudi(),th));
-            Admin.addToListBorrowed(formatTimeBorrowed(arr[i][0], Integer.parseInt(arr[i][1]) ));
-        }
     }
 
     public void returnBooks(Stage stage){
@@ -722,11 +701,12 @@ public class Student extends User implements IMenu {
             if (book == null) {
                 UIManager.showError(actionTarget, "Book with id " + fieldId.getText() + " is not found");
             }else {
+
                 this.changeAmountBook(book,fieldId.getText());
                 Admin.removeListBorrowed(this.getNIM(),book.getBookId());
                 UIManager.showSuccess(actionTarget,"BOOK RETURNED SCCESSFULLY");
                 stage.close();
-                pinjamBuku(stage);
+                menu(stage);
             }
         });
 
@@ -904,23 +884,9 @@ public class Student extends User implements IMenu {
         });
 
     }
-
-    public static void clearArray() {
-        for (int i = 0; i < numberBorroewd; i++) {
-            tempBook[i][0] = null;
-            tempBook[i][1] = null;
-        }
-        numberBorroewd = 0;
-    }
-    public boolean isBookAvailable(Student student, String id) {
-        boolean isFound = false;
-        for (int i = 0; i < numberBorroewd; i++)
-            if (tempBook[i][0].equals(id)) {
-                isFound = true;
-                break;
-            }
-        Book book = student.searchBookBorrowed(id);
-        if (book == null && !isFound)
+    public boolean isBookBorrowed( String id) {
+        Book book = this.searchBookBorrowed(id);
+        if (book == null)
             return false;
         return true;
     }
@@ -929,36 +895,36 @@ public class Student extends User implements IMenu {
         borrowedBooks.add(book);
     }
 
-    // MENYIMPAN BUKU YANG ADA DI KERANJANG KEK DALAM DATA BUKU MAHASISWA
-    public void choiceBook(String bookId,int duration){
-        Book book = Student.searchBookAll(bookId);
-        Book borrowedBookCopy = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),1);
-        borrowedBookCopy.setDuration(duration);
-        borrowedBookCopy.setCategory(book.getCategory());
-        this.addBook(borrowedBookCopy);
-        Book bookAdmin = Admin.searchBookAll(bookId);
-        bookAdmin.setStock(bookAdmin.getStock()-1);
-    }
+//    // MENYIMPAN BUKU YANG ADA DI KERANJANG KEK DALAM DATA BUKU MAHASISWA
+//    public void choiceBook(String bookId,int duration){
+//        Book book = Student.searchBookAll(bookId);
+//        Book borrowedBookCopy = new Book(book.getBookId(),book.getTitle(),book.getAuthor(),1);
+//        borrowedBookCopy.setDuration(duration);
+//        borrowedBookCopy.setCategory(book.getCategory());
+//        this.addBook(borrowedBookCopy);
+//        Book bookAdmin = Admin.searchBookAll(bookId);
+//        bookAdmin.setStock(bookAdmin.getStock()-1);
+//    }
 
-    public static void setStudentBook() {
-        studentBook.clear();
-        for (Book book : Admin.getBookList()) {
-            Book copiedBook = new Book(book.getBookId(), book.getTitle(), book.getAuthor(), book.getStock());
-            copiedBook.setCategory(book.getCategory());
-            studentBook.add(copiedBook);
-        }
-    }
+//    public static void setStudentBook() {
+//        studentBook.clear();
+//        for (Book book : Admin.getBookList()) {
+//            Book copiedBook = new Book(book.getBookId(), book.getTitle(), book.getAuthor(), book.getStock());
+//            copiedBook.setCategory(book.getCategory());
+//            studentBook.add(copiedBook);
+//        }
+//    }
 
     public void changeAmountBook(Book bookBorrowed,String inputId){
         Book bookAdmin = Admin.searchBookAll(inputId);
         bookAdmin.setStock(bookAdmin.getStock()+1);
-        Book allBook = Student.searchBookAll(inputId);
-        allBook.setStock(allBook.getStock() + 1);
+//        Book allBook = Student.searchBookAll(inputId);
+//        allBook.setStock(allBook.getStock() + 1);
         this.getBorrowedBooks().remove(bookBorrowed);
     }
 
     public static Book searchBookAll(String id){
-        for (Book book : studentBook)
+        for (Book book : Admin.getBookList())
             if(book.getBookId().equals(id))
                 return book;
         return null;
@@ -970,7 +936,7 @@ public class Student extends User implements IMenu {
                 return book;
         return null;
     }
-    public static Student searchStudent(String inputNIM){
+    public static Student searchStudent(String inputNIM){ //
         for (Student student : Admin.getStudentData())
             if(student.getNIM().equals(inputNIM))
                 return student;
@@ -980,17 +946,16 @@ public class Student extends User implements IMenu {
     public void addVisitor(){
         Admin.setTime();
         String format = Admin.getDate() +" " + Admin.getTime() + " "+ this.getNIM();
+        //2024-06-29 10:39:28 100
         Admin.addVisitor(format);
     }
 
     public String getEmail() {
         return email;
     }
-
     public void setEmail(String email) {
         this.email = email;
     }
-
     public String getConsultingClass() {
         return consultingClass;
     }
@@ -998,27 +963,18 @@ public class Student extends User implements IMenu {
     public void setConsultingClass(String consultingClass) {
         this.consultingClass = consultingClass;
     }
-
     public String getName() {
         return name;
     }
-
     public String getFaculty() {
         return faculty;
     }
-
     public String getProgramStudi() {
         return programStudi;
     }
-
-    public static ArrayList<Book> getStudentBook() {
-        return studentBook;
-    }
-
     public ArrayList<Book> getBorrowedBooks() {
         return borrowedBooks;
     }
-
     public String getNIM(){
         return this.NIM;
     }

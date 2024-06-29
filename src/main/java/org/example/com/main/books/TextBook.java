@@ -5,7 +5,6 @@ public class TextBook extends Book{
         super(bookId,title,author,stock);
         super.setCategory(category);
     }
-
     @Override
     public String getCategory() {
         return category;

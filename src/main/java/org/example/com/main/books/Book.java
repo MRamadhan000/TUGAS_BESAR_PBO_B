@@ -10,17 +10,6 @@ public class Book {
         this.stock = stock;
         this.duration = 0;
     }
-
-//    public Book(String bookId, String title, String author, int stock) {
-//    }
-
-//    public void setJadwal(String jadwal) {
-//        this.jadwal = jadwal;
-//    }
-//
-//    public String getJadwal() {
-//        return this.jadwal;
-//    }
     public void setBookId(String bookId) {
         this.bookId = bookId;
     }

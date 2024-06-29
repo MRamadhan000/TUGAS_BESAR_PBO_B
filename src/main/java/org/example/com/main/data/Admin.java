@@ -58,6 +58,7 @@ public class Admin extends User implements IMenu {
     private static final ArrayList<String> studentList = new ArrayList<>();
     private static ArrayList<String> visitorList = new ArrayList<>(); // date time NIM
     private static ArrayList<String> listBorrowedBook = new ArrayList<>();
+    private static ArrayList<String> bookLoad = new ArrayList<>(); // NIM,bookId,duration
 
     public static void logIn(Stage stage){
         UIManager.setPreviousLayout(stage.getScene());// SAVE PRVIOUS SCENE
@@ -119,34 +120,84 @@ public class Admin extends User implements IMenu {
         stage.show();
     }
 
+    public static void addToLoadBook(String str){
+        System.out.println("DAFTAR BUKU ANTRIAN " + str);
+        bookLoad.add(str);
+    }
+
     public static void addToListBorrowed(String str){
         listBorrowedBook.add(str);
+        System.out.println("Buku berhasil ditambah dengan format " + str);
+    }
+
+    public static boolean isHaveBookLoad(String bookId){
+        for(String x : bookLoad){
+            String[] split = x.split(",");
+            if (split[1].equals(bookId)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void removeListBorrowed(String NIM, String bookId){
-        for (String x : listBorrowedBook){
-            String[] str = x.split(",");
-            if (str[0].equals(NIM) && str[1].equals(bookId))
-                listBorrowedBook.remove(x);
+        for (String content : listBorrowedBook) {
+            System.out.println("NILAI X SEBELUM DIUBAH " + content);
         }
+
+        try {
+            for (String x : listBorrowedBook){
+                String[] str = x.split(",");
+                if (str[0].equals(NIM) && str[1].equals(bookId)) {
+                    System.out.println("Berhasil terhapus 1");
+                    listBorrowedBook.remove(x);
+                    System.out.println("Berhasil terhapus 2");
+                }
+            }
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        for (String content1: listBorrowedBook) {
+            System.out.println("NILAI X Sesudah DIUBAH " + content1);
+        }
+
     }
 
     //MENGECEK APAKAH ADA SISA DURASI 3 HARI
     public void checkDurationBookBorrowed(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyy-MM-dd");
-        for (String student : listBorrowedBook){
-            String[] str = student.split(",");
-            LocalDate currentTime = LocalDate.parse(Admin.getDate(), formatter);
-            LocalDate deadlineDate = LocalDate.parse(str[3], formatter);
-            long daysBetween = ChronoUnit.DAYS.between(currentTime, deadlineDate);
-            if (daysBetween == 3 ){
-                loadAccount(str[0],str[1],str[3]);
+        try {
+            for (String student : listBorrowedBook){
+                String[] str = student.split(",");
+                LocalDate currentTime = LocalDate.parse(Admin.getDate(), formatter);
+                LocalDate deadlineDate = LocalDate.parse(str[3], formatter);
+                long daysBetween = ChronoUnit.DAYS.between(currentTime, deadlineDate);
+                if (daysBetween == 3 ){
+                    loadAccount(str[0],str[1],str[3]);
+                }
             }
+        }catch (Exception e){
+            System.err.println(e.getMessage());
         }
     }
 
-    //MENCARI AKUN DAN KIRIM EMAIL
+    public static String getWaitBorrowedBook(String bookId){
+        try {
+            for (String student : listBorrowedBook){
+                String[] str = student.split(",");
+                if (str[1].equals(bookId) ){
+                    return str[2];
+                }
+            }
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 
+
+    //MENCARI AKUN DAN KIRIM EMAIL
     public void loadAccount(String NIM, String bookId,String deadline){
         for (Student student : studentData){
             if (student.getNIM().equals(NIM)){
