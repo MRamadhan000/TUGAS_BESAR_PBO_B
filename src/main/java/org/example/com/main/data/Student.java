@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
@@ -21,10 +22,8 @@ import org.example.com.main.UI.UIManager;
 import org.example.com.main.books.*;
 import org.example.com.main.util.IMenu;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.util.*;
-
 
 public class Student extends User implements IMenu {
     private String name,faculty,programStudi,NIM,consultingClass,email,link;
@@ -69,18 +68,28 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("Log In Student");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         Label userName = new Label("NIM:");
+        userName.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        userName.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
         grid.add(userName, 0, 1); // Kolom 0, Baris 1
 
         TextField fieldNIM = new TextField();
+        fieldNIM.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldNIM.setPromptText("Enter your NIM");
         grid.add(fieldNIM, 1, 1); // Kolom 1, Baris 1
 
         Button btnSignIn = new Button("SIGN IN");
         Button btnBack = new Button("BACK");
+        btnSignIn.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnSignIn.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
+
         HBox hBBtn = new HBox(10);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack, btnSignIn);
@@ -124,7 +133,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("STUDENT MENU");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         VBox hBBtn = new VBox(10);
@@ -148,6 +158,15 @@ public class Student extends User implements IMenu {
         btnUpBook.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
         btnDaftarKonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
         btntampilJadwalKonsul.setPrefSize(UIManager.getButtonWidth(),UIManager.getButtonHeight());
+
+        btnBukuT.setStyle(UIManager.stylePrimary);
+        btnPinjamB.setStyle(UIManager.stylePrimary);
+        btnKembalikanB.setStyle(UIManager.stylePrimary);
+        btnOut.setStyle(UIManager.stylePrimary);
+        btnDisplayFavorite.setStyle(UIManager.stylePrimary);
+        btnUpBook.setStyle(UIManager.stylePrimary);
+        btnDaftarKonsul.setStyle(UIManager.stylePrimary);
+        btntampilJadwalKonsul.setStyle(UIManager.stylePrimary);
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -220,6 +239,7 @@ public class Student extends User implements IMenu {
             }
         });
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("STUDENT MENU");
         stage.setScene(scene);
         stage.show();
@@ -236,6 +256,7 @@ public class Student extends User implements IMenu {
 
         // Membuat label dan text field untuk jumlah hari peminjaman
         Label label = new Label("Number of days to borrow: " + duration);
+
 
         // Mengatur layout dialog
         GridPane grid = new GridPane();
@@ -256,6 +277,32 @@ public class Student extends User implements IMenu {
             String format = this.getNIM() + "," + book.getBookId() + "," + duration;
             Admin.addToLoadBook(format);
         }
+    }
+
+    public void checkBorowedEmptyBooks(String bookId) {
+        try {
+            for (String data : Admin.getBookLoad()){
+                String[] split = data.split(",");
+                if (split[1].equals(bookId)){
+                    addBookLoadStudents(split[0],split[1],Integer.parseInt(split[2]));
+                    Admin.getBookLoad().remove(data);
+                    break;
+                }
+            }
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void addBookLoadStudents(String NIM, String bookId,int duration){
+        Student student = searchStudent(NIM);
+        Book book = searchBookAll(bookId);
+        book.setDuration(duration);
+        book.setCategory(book.getCategory());
+        student.addBook(book);
+        book.setStock(book.getStock()-1);
+        favoriteBooks.add(book.getBookId());
+        Admin.addToListBorrowed(formatTimeBorrowed(book.getBookId(),duration));
     }
 
     public void displayJadwalKonsultasi(Stage stage) {
@@ -301,18 +348,27 @@ public class Student extends User implements IMenu {
         grid.add(hbox,1,1);
 
         Text sceneTitle = new Text("Inputkan hari konsultasi");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 2, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         Label hari = new Label("Hari :");
+        hari.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        hari.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
         grid.add(hari, 0, 3); // Kolom 0, Baris 1
 
         TextField fieldHari = new TextField();
+        fieldHari.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldHari.setPromptText("hari");
         grid.add(fieldHari, 1, 4); // Kolom 1, Baris 1
 
         Button btnSignIn = new Button("Daftar");
         Button btnBack = new Button("BACK");
+        btnSignIn.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnSignIn.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
         HBox hBBtn = new HBox(10);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack, btnSignIn);
@@ -431,7 +487,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("FAVORITE BOOKS");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         TableView<PropertyBook> table = super.createTableViewFavorite(getFavoriteBookArr());
@@ -443,6 +500,8 @@ public class Student extends User implements IMenu {
 
         HBox hBBtn = new HBox(10);
         Button btnBack = new Button("BACK");
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setStyle(UIManager.styleSecondary);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack);
         grid.add(hBBtn,1,2);
@@ -508,7 +567,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("MENU BUKU TERPINJAM");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         TableView<PropertyBook> table = createTableView(this.getBorrowedBooks());
@@ -520,6 +580,8 @@ public class Student extends User implements IMenu {
 
         HBox hBBtn = new HBox(10);
         Button btnBack = new Button("BACK");
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setStyle(UIManager.styleSecondary);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack);
         grid.add(hBBtn,1,2);
@@ -548,7 +610,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("PEMINJAMAN BUKU");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         TableView<PropertyBook> table = super.createTableView(User.getBookList());
@@ -559,13 +622,21 @@ public class Student extends User implements IMenu {
         grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
 
         Label id = new Label("ID");
+        id.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        id.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
+
         TextField fieldId = new TextField();
+        fieldId.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldId.setPromptText("Enter book Id");
         grid.add(id,0,2);
         grid.add(fieldId,1,2);
 
         Label duration = new Label("Duration");
+        duration.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        duration.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
+
         TextField fieldDuration = new TextField();
+        fieldDuration.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldDuration.setPromptText("Enter duration");
         grid.add(duration,0,3);
         grid.add(fieldDuration,1,3);
@@ -577,6 +648,11 @@ public class Student extends User implements IMenu {
         HBox hBBtn = new HBox(10);
         Button btnAdd = new Button("BORROW BOOK");
         Button btnBack = new Button("BACK");
+        btnAdd.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnAdd.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack,btnAdd);
         grid.add(hBBtn,1,5);
@@ -665,7 +741,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("MENU KEMBALIKAN BUKU");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         TableView<PropertyBook> table = createTableView(this.getBorrowedBooks());
@@ -676,7 +753,10 @@ public class Student extends User implements IMenu {
         grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
 
         Label id = new Label("ID");
+        id.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        id.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
         TextField fieldId = new TextField();
+        fieldId.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldId.setPromptText("Enter book Id");
         grid.add(id,0,2);
         grid.add(fieldId,1,2);
@@ -688,6 +768,13 @@ public class Student extends User implements IMenu {
         HBox hBBtn = new HBox(10);
         Button btnReturn = new Button("RETURN BOOK");
         Button btnBack = new Button("BACK");
+
+        btnReturn.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnReturn.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
+
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack,btnReturn);
         grid.add(hBBtn,1,5);
@@ -701,9 +788,9 @@ public class Student extends User implements IMenu {
             if (book == null) {
                 UIManager.showError(actionTarget, "Book with id " + fieldId.getText() + " is not found");
             }else {
-
                 this.changeAmountBook(book,fieldId.getText());
                 Admin.removeListBorrowed(this.getNIM(),book.getBookId());
+                checkBorowedEmptyBooks(fieldId.getText());
                 UIManager.showSuccess(actionTarget,"BOOK RETURNED SCCESSFULLY");
                 stage.close();
                 menu(stage);
@@ -768,7 +855,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10); // Jarak vertikal antar baris
         grid.setPadding(new Insets(25, 25, 25, 25));
         Text sceneTitle = new Text("MENU TAMBAH DURASI BUKU BUKU");
-        sceneTitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle, 0, 0, 2, 1); // Kolom 0, Baris 0, Colspan 2, Rowspan 1
 
         TableView<PropertyBook> table = createTableView(this.getBorrowedBooks());
@@ -779,7 +867,11 @@ public class Student extends User implements IMenu {
         grid.add(vbox, 0, 1, 2, 1); // Menambahkan TableView ke GridPane
 
         Label id = new Label("ID");
+        id.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        id.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
+
         TextField fieldId = new TextField();
+        fieldId.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldId.setPromptText("Enter book Id");
         grid.add(id,0,2);
         grid.add(fieldId,1,2);
@@ -787,10 +879,15 @@ public class Student extends User implements IMenu {
         HBox hBBtn = new HBox(10);
         Button btnReturn = new Button("EDIT BOOK");
         Button btnBack = new Button("BACK");
+
+        btnReturn.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnReturn.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack,btnReturn);
         grid.add(hBBtn,1,3);
-
 
         final Text actionTarget = new Text();
         actionTarget.setWrappingWidth(200); // Set a fixed width to prevent layout changes
@@ -828,7 +925,8 @@ public class Student extends User implements IMenu {
         grid.setVgap(10);
         grid.setPadding(new Insets(25,25,25,25));
         Text sceneTitle = new Text("EDIT BOOK");
-        sceneTitle.setFont(Font.font("Tahoma",FontWeight.NORMAL,20));
+        sceneTitle.setFont(Font.font("Sans-serif", FontWeight.BOLD, 25));
+        sceneTitle.setFill(Color.web("#1b4332")); // Hexadecimal color
         grid.add(sceneTitle,0,0,2,1);
 
         TableView<PropertyBook> table = createTableView(this.getBorrowedBooks());
@@ -839,7 +937,11 @@ public class Student extends User implements IMenu {
         grid.add(vbox, 0, 1, 2, 1);
 
         Label duration = new Label("Duration");
+        duration.setTextFill(javafx.scene.paint.Color.web("#1b4332")); // Set text color
+        duration.setFont(Font.font("Sans-serif", FontWeight.BOLD, 16)); // Set font family and size
+
         TextField fieldDuration = new TextField();
+        fieldDuration.setPrefSize(UIManager.fieldInputWidth,UIManager.fieldInputHeight);
         fieldDuration.setPromptText("Enter book new duration");
         grid.add(duration,0,2);
         grid.add(fieldDuration,1,2);
@@ -847,6 +949,11 @@ public class Student extends User implements IMenu {
         HBox hBBtn = new HBox(10);
         Button btnSave = new Button("SAVE");
         Button btnBack = new Button("BACK");
+        btnSave.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+        btnBack.setPrefSize(UIManager.buttonSeondaryWidth,UIManager.buttonSecondaryHeight);
+
+        btnSave.setStyle(UIManager.styleSecondary);
+        btnBack.setStyle(UIManager.styleSecondary);
         hBBtn.setAlignment(Pos.BOTTOM_RIGHT);
         hBBtn.getChildren().addAll(btnBack,btnSave);
         grid.add(hBBtn,1,3);

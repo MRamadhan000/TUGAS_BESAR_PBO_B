@@ -4,8 +4,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -95,22 +93,19 @@ public class Main extends Application{
         grid.setHgap(10);
         grid.setPadding(new Insets(25, 25, 25, 25));
 
-        //Add image at the top
-        ImageView imageView = new ImageView(new Image(Main.class.getResource("/Image/logos.jpg").toString()));
-        imageView.setFitWidth(200); // Set desired width
-        imageView.setPreserveRatio(true); // Preserve the aspect ratio
-        grid.add(imageView, 0, 0, 2, 1); // Span across 2 columns
-
-        grid.setStyle("-fx-background-color: #686D76;");
-
         VBox hboxBtn = new VBox(10);
-        Button btnLogAdmin = new Button("Login As Admin");
-        Button btnLogStudent = new Button("Login As Student");
-        Button btnExit = new Button("EXIT");
+        Button btnLogAdmin = new Button("Login as Admin");
+        Button btnLogStudent = new Button("Login as Student");
+        Button btnExit = new Button("Exit");
 
         btnLogAdmin.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
         btnLogStudent.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
         btnExit.setPrefSize(UIManager.getButtonWidth(), UIManager.getButtonHeight());
+
+        // STYLE WARNA BACKGROUND BUTTON, BORDER RADIUS,WARNA TEXT, FONT TEXT
+        btnLogAdmin.setStyle(UIManager.stylePrimary);
+        btnLogStudent.setStyle(UIManager.stylePrimary);
+        btnExit.setStyle(UIManager.stylePrimary);
 
         hboxBtn.setAlignment(Pos.CENTER);
         hboxBtn.getChildren().addAll(btnLogAdmin, btnLogStudent, btnExit);
@@ -145,6 +140,7 @@ public class Main extends Application{
         });
 
         Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("MENU");
         stage.setScene(scene);
         stage.show();
