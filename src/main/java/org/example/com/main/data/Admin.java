@@ -209,7 +209,7 @@ public class Admin extends User implements IMenu {
             for (String student : listBorrowedBook){
                 String[] str = student.split(",");
                 if (str[1].equals(bookId) ){
-                    return str[2];
+                    return str[3];
                 }
             }
         }catch (Exception e){

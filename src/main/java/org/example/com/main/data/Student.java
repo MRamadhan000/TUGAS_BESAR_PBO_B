@@ -296,13 +296,21 @@ public class Student extends User implements IMenu {
 
     public void addBookLoadStudents(String NIM, String bookId,int duration){
         Student student = searchStudent(NIM);
-        Book book = searchBookAll(bookId);
+        Book bookSearch = searchBookAll(bookId);
+        Book book = null;
+        try {
+            book = new Book(bookSearch.getBookId(),bookSearch.getTitle(),bookSearch.getAuthor(),1);
+        }catch (NullPointerException e){
+            System.err.println(e.getMessage());
+        }
+
         book.setDuration(duration);
         book.setCategory(book.getCategory());
+
         student.addBook(book);
-        book.setStock(book.getStock()-1);
-        favoriteBooks.add(book.getBookId());
-        Admin.addToListBorrowed(formatTimeBorrowed(book.getBookId(),duration));
+        bookSearch.setStock(bookSearch.getStock()-1);
+        favoriteBooks.add(bookSearch.getBookId());
+        Admin.addToListBorrowed(formatTimeBorrowed(book.getBookId(),duration,NIM));
     }
 
     public void displayJadwalKonsultasi(Stage stage) {
@@ -726,6 +734,12 @@ public class Student extends User implements IMenu {
         Admin.addToListBorrowed(formatTimeBorrowed(book.getBookId(),duration));
     }
 
+    public String formatTimeBorrowed(String bookId,int days,String NIM){
+        LocalDate convertDate = LocalDate.parse(Admin.getDate());
+        LocalDate newDate = convertDate.plusDays(days);
+        System.out.println("PEMINJAMAN BUKU : "+ NIM +"," + bookId + "," + Admin.getDate() + "," + newDate.toString());
+        return NIM +"," + bookId + "," + Admin.getDate() + "," + newDate.toString();
+    }
     public String formatTimeBorrowed(String bookId,int days){
         LocalDate convertDate = LocalDate.parse(Admin.getDate());
         LocalDate newDate = convertDate.plusDays(days);
