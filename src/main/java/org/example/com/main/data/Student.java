@@ -306,7 +306,7 @@ public class Student extends User implements IMenu {
         }
 
         book.setDuration(duration);
-        book.setCategory(book.getCategory());
+        book.setCategory(bookSearch.getCategory());
 
         student.addBook(book);
         bookSearch.setStock(bookSearch.getStock()-1);

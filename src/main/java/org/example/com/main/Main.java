@@ -30,7 +30,7 @@ public class Main extends Application{
 
         for (int i = 0; i < 10; i++){
             String bookId = "A0"+i;
-            Book book = new Book(bookId,"A","RANDOMA",i);
+            Book book = new Book(bookId,"A","RANDOMA",i+1);
             book.setCategory("Story");
             User.getBookList().add(book);
 
