@@ -116,6 +116,7 @@ public class Student extends User implements IMenu {
             stage.setScene(UIManager.getPreviousLayout());
         });
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("LOGIN STUDENT");
         stage.setScene(scene);
         stage.show();
@@ -406,6 +407,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("LOGIN STUDENT");
         stage.setScene(scene);
         stage.show();
@@ -524,6 +526,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("DISPLAY AVAILABE BOOKS");
         stage.setScene(scene);
         stage.show();
@@ -604,6 +607,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid, UIManager.getWidth(), UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("BOOKS TABLE");
         stage.setScene(scene);
         stage.show();
@@ -719,6 +723,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("BORRWED BOOK MENU");
         stage.setScene(scene);
         stage.show();
@@ -817,6 +822,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("CHANGE BOOK MENU");
         stage.setScene(scene);
         stage.show();
@@ -926,6 +932,7 @@ public class Student extends User implements IMenu {
         });
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("RETURN BOOK MENU");
         stage.setScene(scene);
         stage.show();
@@ -977,6 +984,7 @@ public class Student extends User implements IMenu {
         grid.add(actionTarget,1,4);
 
         Scene scene = new Scene(grid,UIManager.getWidth(),UIManager.getHeight());
+        grid.setStyle(UIManager.primaryColour);
         stage.setTitle("TAMBAH DURASI");
         stage.setScene(scene);
         stage.show();
